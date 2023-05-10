@@ -1,4 +1,4 @@
-namespace Template
+namespace RayTracer
 {
     class MyApplication
     {
