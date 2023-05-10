@@ -14,5 +14,11 @@ namespace RayTracer
         float distance;
         Primitive nearestPrimitive;
         Vector3 normal;
+        internal Intersection(float distance, Primitive nearestPrimitive, Vector3 normal)
+        {
+            this.distance = distance;
+            this.nearestPrimitive = nearestPrimitive;
+            this.normal = normal;
+        }
     }
 }

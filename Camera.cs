@@ -18,11 +18,18 @@ namespace RayTracer
         Vector3 position;
         Vector3 lookAtDirection;
         Vector3 upDirection;
-        
+
         public Vector3 leftTop;
         public Vector3 rightTop;
         public Vector3 leftBottom;
         public Vector3 rightBottom;
 
+        
+        internal Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection)
+        {
+            this.position = position;
+            this.lookAtDirection = lookAtDirection;
+            this.upDirection = upDirection;
+        }
     }
 }

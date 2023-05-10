@@ -12,5 +12,18 @@ namespace RayTracer
     //For the middle row of pixels (typically line 256 for a 512x512 window), it generates debug output by visualizing every Nthray (where N is e.g. 10).
     internal class Raytracer
     {
+        Scene scene;
+        Camera camera;
+        Surface screen;
+        internal Raytracer(Surface screen)
+        {
+            scene = new Scene();
+            camera = new Camera(new OpenTK.Mathematics.Vector3(0,0,0), new OpenTK.Mathematics.Vector3(0, 0, 1), new OpenTK.Mathematics.Vector3(0, 1, 0));
+            this.screen = screen;
+        }
+        internal void Render()
+        {
+            
+        }
     }
 }

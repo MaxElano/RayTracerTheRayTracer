@@ -10,6 +10,14 @@ namespace RayTracer
     //The application is responsible for handling keyboard and/or mouse input.
     internal class Application
     {
-
+        Raytracer raytracer;
+        internal Application(Surface screen)
+        {
+            raytracer = new Raytracer(screen);
+        }
+        internal void Update()
+        {
+            raytracer.Render();
+        }
     }
 }
