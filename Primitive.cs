@@ -13,22 +13,19 @@ namespace RayTracer
     //Initially (until you implement materials) it may also be useful to add a color to the primitive class.
     internal class Primitive
     {
-        float redIntensity; //Temp
-        float greenIntensity; //Temp
-        float blueIntensity; //Temp
-        internal Primitive(float redIntensity, float greenIntensity, float blueIntensity)
+        internal Vector3 rgbIntensity;
+
+        internal Primitive(Vector3 rgbIntensity)
         {
-            this.redIntensity = redIntensity;
-            this.greenIntensity = greenIntensity;
-            this.blueIntensity = blueIntensity;
+            this.rgbIntensity = rgbIntensity;
         }
     }
 
     internal class Sphere : Primitive
     {
-        Vector3 position;
-        float radius;
-        internal Sphere(Vector3 position, float radius, float redIntensity, float greenIntensity, float blueIntensity) : base(redIntensity, greenIntensity, blueIntensity)
+        internal Vector3 position;
+        internal float radius;
+        internal Sphere(Vector3 position, float radius, Vector3 rgbIntensity) : base(rgbIntensity)
         {
             this.position = position;
             this.radius = radius;
@@ -37,9 +34,9 @@ namespace RayTracer
 
     internal class Plane : Primitive
     {
-        Vector3 normal;
-        float distanceToOrigin; //Could also be Vector3, but depends
-        internal Plane(Vector3 normal, float distanceToOrigin, float redIntensity, float greenIntensity, float blueIntensity) : base(redIntensity, greenIntensity, blueIntensity)
+        internal Vector3 normal;
+        internal Vector3 distanceToOrigin;
+        internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 rgbIntensity) : base(rgbIntensity)
         {
             this.normal = normal;
             this.distanceToOrigin = distanceToOrigin;

@@ -12,15 +12,11 @@ namespace RayTracer
     internal class Light
     {
         Vector3 position;
-        float redIntensity;
-        float greenIntensity;
-        float blueIntensity;
-        internal Light(Vector3 position, float redIntensity, float greenIntensity, float blueIntensity)
+        Vector3 rgbIntensity;
+        internal Light(Vector3 position, Vector3 rgbIntensity)
         {
             this.position = position;
-            this.redIntensity = redIntensity;
-            this.greenIntensity = greenIntensity;
-            this.blueIntensity = blueIntensity;
+            this.rgbIntensity = rgbIntensity;
         }
     }
 }

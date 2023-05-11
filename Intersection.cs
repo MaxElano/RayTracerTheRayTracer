@@ -11,9 +11,9 @@ namespace RayTracer
     //Apart from the intersection distance, you will at least want to store the nearest primitive, but perhaps also the normal at the intersection point.
     internal class Intersection
     {
-        float distance;
-        Primitive nearestPrimitive;
-        Vector3 normal;
+        internal float distance;
+        internal Primitive nearestPrimitive;
+        internal Vector3 normal;
         internal Intersection(float distance, Primitive nearestPrimitive, Vector3 normal)
         {
             this.distance = distance;
