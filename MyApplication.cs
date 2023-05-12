@@ -1,3 +1,5 @@
+using OpenTK.Windowing.GraphicsLibraryFramework;
+
 namespace RayTracer
 {
     class MyApplication
@@ -6,10 +8,10 @@ namespace RayTracer
         public Surface screen;
         public Application application;
         // constructor
-        public MyApplication(Surface screen)
+        public MyApplication(Surface screen, KeyboardState keyboard)
         {
             this.screen = screen;
-            this.application = new Application(screen);
+            this.application = new Application(screen, keyboard);
 
         }
         // initialize

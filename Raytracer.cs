@@ -14,7 +14,7 @@ namespace RayTracer
     internal class Raytracer
     {
         Scene scene;
-        Camera camera;
+        internal Camera camera;
         Surface screen;
         internal Raytracer(Surface screen)
         {
