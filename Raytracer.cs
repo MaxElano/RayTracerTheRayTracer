@@ -15,8 +15,8 @@ namespace RayTracer
     internal class Raytracer
     {
         Scene scene;
-        Camera camera;
         Camera debugCamera;
+        internal Camera camera;
         Surface screen;
 
         bool debugMode;

@@ -17,7 +17,7 @@ namespace RayTracer
     internal class Camera
     {
         internal Vector3 position;
-        Vector3 lookAtDirection;
+        internal Vector3 lookAtDirection;
         Vector3 upDirection;
         Vector3 rightDirection;
         float distanceToScreenPlane; 
