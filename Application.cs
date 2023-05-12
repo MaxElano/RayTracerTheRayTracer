@@ -13,6 +13,8 @@ namespace RayTracer
         KeyboardState keyboard;
 
         internal Application(Surface screen, KeyboardState keyboard)
+        static internal float epsilon = 0.0001f;
+        internal Application(Surface screen)
         {
             raytracer = new Raytracer(screen);
             this.keyboard = keyboard;

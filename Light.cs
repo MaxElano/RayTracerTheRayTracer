@@ -11,8 +11,8 @@ namespace RayTracer
     //Intensity should be stored using float values for red, green and blue.
     internal class Light
     {
-        Vector3 position;
-        Vector3 rgbIntensity;
+        internal Vector3 position;
+        internal Vector3 rgbIntensity;
         internal Light(Vector3 position, Vector3 rgbIntensity)
         {
             this.position = position;
