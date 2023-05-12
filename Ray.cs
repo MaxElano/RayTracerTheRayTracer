@@ -12,10 +12,11 @@ namespace RayTracer
         internal Vector3 origin;
         internal Vector3 direction;
         internal float intersectionDistance;
-        internal Ray(Vector3 origin, Vector3 direction)
+        internal Ray(Vector3 origin, Vector3 direction, float intersectionDistance)
         {
             this.origin = origin;
             this.direction = direction;
+            this.intersectionDistance = intersectionDistance;
         }
     }
 }

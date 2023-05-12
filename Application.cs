@@ -11,6 +11,7 @@ namespace RayTracer
     internal class Application
     {
         Raytracer raytracer;
+        static internal float epsilon = 0.0001f;
         internal Application(Surface screen)
         {
             raytracer = new Raytracer(screen);
