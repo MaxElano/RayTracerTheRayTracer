@@ -36,7 +36,7 @@ namespace RayTracer
                 for (int x = 0; x < width; x++)
                 {
                     screen.pixels[x + y * width] = 0;
-                    Ray primaryRay = findPrimaryRay(x, y, width, height);
+                    Ray primaryRay = FindPrimaryRay(x, y, width, height);
                     Intersection primaryIntersection = scene.PrimaryRayIntersection(primaryRay);
 
                     if (debugMode) //Test debugMode (WIP)
@@ -60,12 +60,13 @@ namespace RayTracer
                                 Vector3 specularColor = primaryIntersection.nearestPrimitive.speculalColor;
                                 Vector3 r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, primaryIntersection.normal) * primaryIntersection.normal;
                                 r.Normalize();
-                                float n = 2;
+                                float n = 2000;
                                 Vector3 materialsAmbientColor = materialColor;
                                 Vector3 ambientLightRadiance = new Vector3(0.4f, 0.4f, 0.4f);
                                 color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
                                 //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
                             }
+                            //screen.pixels[x + y * width] = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
                             screen.pixels[x + y * width] = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
                         }
                     }
@@ -74,7 +75,7 @@ namespace RayTracer
 
         }
 
-        internal Ray findPrimaryRay(float x, float y, float width, float height)
+        internal Ray FindPrimaryRay(float x, float y, float width, float height)
         {
             Vector3 u = camera.rightTop - camera.leftTop;
             Vector3 v = camera.leftBottom - camera.leftTop;

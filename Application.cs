@@ -12,7 +12,8 @@ namespace RayTracer
         Raytracer raytracer;
         KeyboardState keyboard;
         static internal float epsilon = 0.0001f;
-        
+
+
         internal Application(Surface screen, KeyboardState keyboard)
         {
             raytracer = new Raytracer(screen);
