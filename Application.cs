@@ -11,10 +11,9 @@ namespace RayTracer
     {
         Raytracer raytracer;
         KeyboardState keyboard;
-
-        internal Application(Surface screen, KeyboardState keyboard)
         static internal float epsilon = 0.0001f;
-        internal Application(Surface screen)
+        
+        internal Application(Surface screen, KeyboardState keyboard)
         {
             raytracer = new Raytracer(screen);
             this.keyboard = keyboard;
@@ -32,37 +31,91 @@ namespace RayTracer
             if (keyboard[Keys.LeftShift]) moveSpeed = 2.5f;
             else moveSpeed = 1;
 
-            if (keyboard[Keys.W]) Movement(0, 0, 0.1f, moveSpeed);
-            if (keyboard[Keys.S]) Movement(0, 0, -0.1f, moveSpeed);
-            if (keyboard[Keys.A]) Movement(0.1f, 0, 0, moveSpeed);
-            if (keyboard[Keys.D]) Movement(-0.1f, 0, 0, moveSpeed);
-            if (keyboard[Keys.E]) Movement(0, 0.1f, 0, moveSpeed);
-            if (keyboard[Keys.Q]) Movement(0, -0.1f, 0, moveSpeed);
+            if (keyboard[Keys.W])
+            {
+                raytracer.camera.position += raytracer.camera.lookAtDirection * 0.1f;
+                raytracer.camera.SetScreenPlaneCorners();
+            }
+            if (keyboard[Keys.S])
+            {
+                raytracer.camera.position -= raytracer.camera.lookAtDirection * 0.1f;
+                raytracer.camera.SetScreenPlaneCorners();
+            }
+            if (keyboard[Keys.A])
+            {
+                raytracer.camera.position -= raytracer.camera.rightDirection * 0.1f;
+                raytracer.camera.SetScreenPlaneCorners();
+            }
+            if (keyboard[Keys.D])
+            {
+                raytracer.camera.position += raytracer.camera.rightDirection * 0.1f;
+                raytracer.camera.SetScreenPlaneCorners();
+            }
+            if (keyboard[Keys.E]) VerticalMovement(0.1f, moveSpeed);
+            if (keyboard[Keys.Q]) VerticalMovement(-0.1f, moveSpeed);
 
-            if (keyboard[Keys.Up]) LookDirection(0, 0.1f, 0);
-            if (keyboard[Keys.Down]) LookDirection(0, -0.1f, 0);
-            if (keyboard[Keys.Left]) LookDirection(0.1f, 0, 0);
-            if (keyboard[Keys.Right]) LookDirection(-0.1f, 0, 0);
+            if (keyboard[Keys.Up]) LookDirection(0, 0.05f);
+            if (keyboard[Keys.Down]) LookDirection(0, -0.05f);
+            if (keyboard[Keys.Left]) LookDirection(0.05f, 0);
+            if (keyboard[Keys.Right]) LookDirection(-0.05f, 0);
         }
 
-        private void Movement(float x, float y, float z, float moveSpeed)
+        private void VerticalMovement(float movement, float moveSpeed)
         {
-            Vector3 change = new Vector3(x, y, z) * moveSpeed;
-            raytracer.camera.position += change;
-            raytracer.camera.leftTop += change;
-            raytracer.camera.rightTop += change;
-            raytracer.camera.leftBottom += change;
-            raytracer.camera.rightBottom += change;
+            raytracer.camera.position.Y += movement;
+            raytracer.camera.SetScreenPlaneCorners();
         }
 
-        private void LookDirection(float  x, float y, float z)
+        private void LookDirection(float HoriAxis, float VertAxis)
         {
-            Vector3 change = new Vector3(x, y, z);
-            raytracer.camera.lookAtDirection += change;
-            raytracer.camera.leftTop += change;
-            raytracer.camera.rightTop += change;
-            raytracer.camera.leftBottom += change;
-            raytracer.camera.rightBottom += change;
+            var camera = raytracer.camera;
+
+            if (HoriAxis != 0)
+            {
+                if (camera.lookAtDirection.X >= 0 && camera.lookAtDirection.Z > 0)
+                {
+                    camera.lookAtDirection.X += HoriAxis;
+                    camera.lookAtDirection.Z -= HoriAxis;
+                    camera.rightDirection.X += HoriAxis;
+                    camera.rightDirection.Z += HoriAxis;
+                }
+                if (camera.lookAtDirection.X > 0 && camera.lookAtDirection.Z <= 0)
+                {
+                    camera.lookAtDirection.X -= HoriAxis;
+                    camera.lookAtDirection.Z -= HoriAxis;
+                    camera.rightDirection.X += HoriAxis;
+                    camera.rightDirection.Z -= HoriAxis;
+                }
+                if (camera.lookAtDirection.X <= 0 && camera.lookAtDirection.Z < 0)
+                {
+                    camera.lookAtDirection.X -= HoriAxis;
+                    camera.lookAtDirection.Z += HoriAxis;
+                    camera.rightDirection.X -= HoriAxis;
+                    camera.rightDirection.Z -= HoriAxis;
+                }
+                if (camera.lookAtDirection.X < 0 && camera.lookAtDirection.Z >= 0)
+                {
+                    camera.lookAtDirection.X += HoriAxis;
+                    camera.lookAtDirection.Z += HoriAxis;
+                    camera.rightDirection.X -= HoriAxis;
+                    camera.rightDirection.Z += HoriAxis;
+                }
+                camera.lookAtDirection.Normalize();
+                if (camera.lookAtDirection.Y != 0) 
+                    camera.FixUpDirection();
+                else
+                    camera.FixRightDirection();
+            }
+
+            if (VertAxis != 0)
+            {
+                if (camera.lookAtDirection.Y < 1 && camera.lookAtDirection.Y > -1)
+                    camera.lookAtDirection.Y += VertAxis;
+                camera.lookAtDirection.Normalize();
+                camera.FixUpDirection();
+            }
+
+            camera.SetScreenPlaneCorners();
         }
     }
 }

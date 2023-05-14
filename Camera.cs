@@ -19,9 +19,9 @@ namespace RayTracer
         internal Vector3 position;
         internal Vector3 lookAtDirection;
         Vector3 upDirection;
-        Vector3 rightDirection;
-        float distanceToScreenPlane; 
-        Vector3 screenPlaneCenter;
+        internal Vector3 rightDirection;
+        internal float distanceToScreenPlane; 
+        internal Vector3 screenPlaneCenter;
 
         public Vector3 leftTop;
         public Vector3 rightTop;
@@ -47,10 +47,23 @@ namespace RayTracer
         }
         internal void SetScreenPlaneCorners()
         {
+            screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
             leftTop = screenPlaneCenter + upDirection - resolution * rightDirection;
             rightTop = screenPlaneCenter + upDirection + resolution * rightDirection;
             leftBottom = screenPlaneCenter - upDirection - resolution * rightDirection;
             rightBottom = screenPlaneCenter - upDirection + resolution * rightDirection;
+        }
+
+        internal void FixRightDirection()
+        {
+            rightDirection = Vector3.Cross(lookAtDirection, upDirection);
+            rightDirection.Normalize();
+        }
+
+        internal void FixUpDirection()
+        {
+            upDirection = Vector3.Cross(lookAtDirection, rightDirection) * -1;
+            upDirection.Normalize();
         }
     }
 }
