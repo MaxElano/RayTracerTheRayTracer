@@ -101,7 +101,16 @@ namespace RayTracer
                     camera.rightDirection.X -= HoriAxis;
                     camera.rightDirection.Z += HoriAxis;
                 }
-                camera.lookAtDirection.Normalize();
+                Vector2 temp = new Vector2(camera.lookAtDirection.X, camera.lookAtDirection.Z);
+                temp.Normalize();
+                camera.lookAtDirection.X = temp.X;
+                camera.lookAtDirection.Z = temp.Y;
+
+                Vector2 temp2 = new Vector2(camera.rightDirection.X, camera.rightDirection.Z);
+                temp2.Normalize();
+                camera.rightDirection.X = temp2.X;
+                camera.rightDirection.Z = temp2.Y;
+
                 if (camera.lookAtDirection.Y != 0) 
                     camera.FixUpDirection();
                 else
@@ -112,7 +121,7 @@ namespace RayTracer
             {
                 if (camera.lookAtDirection.Y < 1 && camera.lookAtDirection.Y > -1)
                     camera.lookAtDirection.Y += VertAxis;
-                camera.lookAtDirection.Normalize();
+                
                 camera.FixUpDirection();
             }
 
