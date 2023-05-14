@@ -19,6 +19,8 @@ namespace RayTracer
         internal Camera camera;
         Surface screen;
 
+        List<float> tempDistances = new List<float>();
+
         bool debugMode;
         internal Raytracer(Surface screen)
         {
@@ -49,6 +51,7 @@ namespace RayTracer
                         {
                             Vector3 color = Vector3.Zero;
                             int lightsCount = scene.lights.Count();
+                            int tempColor = 0;
                             for (int i = 0; i < lightsCount; i++)
                             {
                                 Light light = scene.lights[i];
@@ -63,10 +66,29 @@ namespace RayTracer
                                 float n = 2000;
                                 Vector3 materialsAmbientColor = materialColor;
                                 Vector3 ambientLightRadiance = new Vector3(0.4f, 0.4f, 0.4f);
+
+                                ////////test
+                                normal.Normalize();
+                                shadowRay.direction.Normalize();
                                 color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
+
+                                if(color == Vector3.Zero)
+                                {
+                                    //tempDistances.Add(distance);
+                                }
+                                if(y % 10 == 0 && x % 10 == 0)
+                                {
+                                    //tempDistances.Add(distance);
+                                }
+                                if (y < screen.height / 2 && x % 10 == 0 && color == Vector3.Zero)
+                                {
+                                    tempDistances.Add(distance);
+                                }
+                                ///////einde test
+
+                                //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
                                 //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
                             }
-                            //screen.pixels[x + y * width] = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
                             screen.pixels[x + y * width] = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
                         }
                     }
