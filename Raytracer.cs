@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace RayTracer
         Surface screen;
 
         List<float> tempDistances = new List<float>();
+        float[,] tempArray = new float[2,10000];
+        int tempint = 0;
 
         bool debugMode;
         internal Raytracer(Surface screen)
@@ -72,24 +75,26 @@ namespace RayTracer
                                 shadowRay.direction.Normalize();
                                 color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
 
-                                if(color == Vector3.Zero)
+                                if (y < screen.height / 2 && x % 100 == 0 && tempint < tempArray.GetLength(1))
                                 {
-                                    //tempDistances.Add(distance);
+                                    tempDistances.Add(Math.Max(0, Vector3.Dot(normal, shadowRay.direction)));
+                                    tempArray[1, tempint] = distance;
+                                    tempArray[0, tempint] = color.Y;
+                                    tempint++;
                                 }
-                                if(y % 10 == 0 && x % 10 == 0)
+                                if (tempint == tempArray.GetLength(1))
                                 {
-                                    //tempDistances.Add(distance);
-                                }
-                                if (y < screen.height / 2 && x % 10 == 0 && color == Vector3.Zero)
-                                {
-                                    tempDistances.Add(distance);
+                                    Sort(tempArray, 0, "ASC");
+                                    for(int j = 0; j < tempArray.GetLength(1); j++)
+                                        Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1,j]);
                                 }
                                 ///////einde test
 
                                 //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
                                 //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
                             }
-                            screen.pixels[x + y * width] = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
+                            tempColor = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
+                            screen.pixels[x + y * width] = tempColor;
                         }
                     }
                 }
@@ -116,5 +121,50 @@ namespace RayTracer
             rayDirection.Normalize();
             return new Ray(intersection.position, rayDirection, length);
         }
+        /// <summary>
+        /// A generic routine to sort a two dimensional array of a specified type based on the specified column.
+        /// </summary>
+        /// <param name="array">The array to sort.</param>
+        /// <param name="sortCol">The index of the column to sort.</param>
+        /// <param name="order">Specify "DESC" or "DESCENDING" for a descending sort otherwise
+        /// leave blank or specify "ASC" or "ASCENDING".</param>
+        /// <remarks>The original array is sorted in place.</remarks>
+        /// <see cref="http://stackoverflow.com/questions/232395/how-do-i-sort-a-two-dimensional-array-in-c"/>
+        private static void Sort<T>(T[,] array, int sortCol, string order)
+        {
+            int colCount = array.GetLength(0), rowCount = array.GetLength(1);
+            if (sortCol >= colCount || sortCol < 0)
+                throw new System.ArgumentOutOfRangeException("sortCol", "The column to sort on must be contained within the array bounds.");
+
+            DataTable dt = new DataTable();
+            // Name the columns with the second dimension index values, e.g., "0", "1", etc.
+            for (int col = 0; col < colCount; col++)
+            {
+                DataColumn dc = new DataColumn(col.ToString(), typeof(T));
+                dt.Columns.Add(dc);
+            }
+            // Load data into the data table:
+            for (int rowindex = 0; rowindex < rowCount; rowindex++)
+            {
+                DataRow rowData = dt.NewRow();
+                for (int col = 0; col < colCount; col++)
+                    rowData[col] = array[col, rowindex];
+                dt.Rows.Add(rowData);
+            }
+            // Sort by using the column index = name + an optional order:
+            DataRow[] rows = dt.Select("", sortCol.ToString() + " " + order);
+
+            for (int row = 0; row <= rows.GetUpperBound(0); row++)
+            {
+                DataRow dr = rows[row];
+                for (int col = 0; col < colCount; col++)
+                {
+                    array[col, row] = (T)dr[col];
+                }
+            }
+
+            dt.Dispose();
+        }
     }
+
 }
