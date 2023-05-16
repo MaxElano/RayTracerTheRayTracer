@@ -24,6 +24,8 @@ namespace RayTracer
         float[,] tempArray = new float[2,10000];
         int tempint = 0;
 
+        bool testMode = false;
+
         bool debugMode;
         internal Raytracer(Surface screen)
         {
@@ -66,32 +68,42 @@ namespace RayTracer
                                 Vector3 specularColor = primaryIntersection.nearestPrimitive.speculalColor;
                                 Vector3 r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, primaryIntersection.normal) * primaryIntersection.normal;
                                 r.Normalize();
-                                float n = 2000;
+                                float n = 2;
                                 Vector3 materialsAmbientColor = materialColor;
-                                Vector3 ambientLightRadiance = new Vector3(0.4f, 0.4f, 0.4f);
+                                Vector3 ambientLightRadiance = new Vector3(0.2f, 0.2f, 0.2f);
 
-                                ////////test
-                                normal.Normalize();
-                                shadowRay.direction.Normalize();
-                                color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
-
-                                if (y < screen.height / 2 && x % 100 == 0 && tempint < tempArray.GetLength(1))
+                                if (testMode)
                                 {
-                                    tempDistances.Add(Math.Max(0, Vector3.Dot(normal, shadowRay.direction)));
-                                    tempArray[1, tempint] = distance;
-                                    tempArray[0, tempint] = color.Y;
-                                    tempint++;
-                                }
-                                if (tempint == tempArray.GetLength(1))
-                                {
-                                    Sort(tempArray, 0, "ASC");
-                                    for(int j = 0; j < tempArray.GetLength(1); j++)
-                                        Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1,j]);
-                                }
-                                ///////einde test
+                                    normal.Normalize();
+                                    shadowRay.direction.Normalize();
+                                    primaryRay.direction.Normalize();
+                                    //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
+                                    color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
 
-                                //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
-                                //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
+
+                                    if (y < screen.height / 2 && x % 100 == 0 && tempint < tempArray.GetLength(1))
+                                    {
+                                        tempDistances.Add(Math.Max(0, Vector3.Dot(normal, shadowRay.direction)));
+                                        tempArray[1, tempint] = distance;
+                                        tempArray[0, tempint] = color.Y;
+                                        tempint++;
+                                    }
+                                    if (tempint == tempArray.GetLength(1))
+                                    {
+                                        Sort(tempArray, 0, "ASC");
+                                        for (int j = 0; j < tempArray.GetLength(1); j++)
+                                            Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1, j]);
+                                    }
+                                    ///////einde test
+                                }
+                                else
+                                {
+                                    color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + light.rgbIntensity * (1 / (distance * distance)) * specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
+
+                                    //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
+                                    //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
+                                }
+
                             }
                             tempColor = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
                             screen.pixels[x + y * width] = tempColor;
