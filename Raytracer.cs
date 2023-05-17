@@ -25,7 +25,7 @@ namespace RayTracer
         float[,] tempArray = new float[2,10000];
         int tempint = 0;
 
-        bool testMode = true;
+        bool testMode = false;
         bool printed = false;
 
         bool debugMode;
@@ -59,53 +59,35 @@ namespace RayTracer
                             Vector3 color = Vector3.Zero;
                             int lightsCount = scene.lights.Count();
                             int tempColor = 0;
+
+                            Vector3 normal = primaryIntersection.normal;
+                            Vector3 materialColor = primaryIntersection.nearestPrimitive.materialColor;
+                            Vector3 specularColor = primaryIntersection.nearestPrimitive.speculalColor;
+                            Vector3 materialsAmbientColor = materialColor;
+                            Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
+
                             for (int i = 0; i < lightsCount; i++)
                             {
                                 Light light = scene.lights[i];
                                 Ray shadowRay = FindShadowRay(primaryIntersection, light);
                                 Vector3 intensity = scene.FindShadowRayColor(shadowRay, light);
                                 float distance = shadowRay.intersectionDistance;
-                                Vector3 normal = primaryIntersection.normal;
-                                Vector3 materialColor = primaryIntersection.nearestPrimitive.materialColor;
-                                Vector3 specularColor = primaryIntersection.nearestPrimitive.speculalColor;
+                                
                                 Vector3 r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, primaryIntersection.normal) * primaryIntersection.normal;
                                 r.Normalize();
-                                float n = 20;
-                                Vector3 materialsAmbientColor = materialColor;
-                                Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
-
-                                if (testMode)
+                                float n = 2;
+                                
+                                if (intensity != Vector3.Zero)
                                 {
-                                    normal.Normalize();
-                                    shadowRay.direction.Normalize();
-                                    primaryRay.direction.Normalize();
-                                    color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
-                                    //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
+                                    color += color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n));
+                                }
 
-                                    if (y < screen.height / 2 && x % 100 == 0 && tempint < tempArray.GetLength(1))
-                                    {
-                                        tempDistances.Add(Math.Max(0, Vector3.Dot(normal, shadowRay.direction)));
-                                            tempArray[1, tempint] = distance;
-                                            tempArray[0, tempint] = Math.Max(0, Vector3.Dot(normal, shadowRay.direction));
-                                            tempint++;
-                                        
-                                    }
-                                    if (tempint == tempArray.GetLength(1) && !printed)
-                                    {
-                                        Sort(tempArray, 0, "ASC");
-                                        for (int j = 0; j < tempArray.GetLength(1); j++)
-                                            //Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1, j]);
-                                        printed = true;
-                                    }
-                                    ///////einde test
-                                }
-                                else
-                                {
-                                    color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
-                                    //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
-                                }
+                                //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
+                                //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
 
                             }
+                            color += materialsAmbientColor * ambientLightRadiance;
+
                             int tempColorR = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256;
                             int tempColorG = ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256;
                             int tempColorB = (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);

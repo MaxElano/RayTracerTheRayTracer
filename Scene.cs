@@ -19,11 +19,11 @@ namespace RayTracer
             primitives = new List<Primitive>();
             lights = new List<Light>();
 
-            //primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
-            primitives.Add(new Sphere(new Vector3(0, -1, 2), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-            lights.Add(new Light(new Vector3(0, 5, 2), new Vector3(10, 10, 10)));
+            primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
+            primitives.Add(new Sphere(new Vector3(0, -1, 2), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
+            lights.Add(new Light(new Vector3(0, 0, 10), new Vector3(10, 10, 10)));
         }
-    
+
         internal Intersection PrimaryRayIntersection(Ray ray)
         {
             float distance = 0;
