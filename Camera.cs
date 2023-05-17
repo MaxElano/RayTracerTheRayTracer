@@ -18,7 +18,7 @@ namespace RayTracer
     {
         internal Vector3 position;
         internal Vector3 lookAtDirection;
-        Vector3 upDirection;
+        internal Vector3 upDirection;
         internal Vector3 rightDirection;
         internal float distanceToScreenPlane; 
         internal Vector3 screenPlaneCenter;

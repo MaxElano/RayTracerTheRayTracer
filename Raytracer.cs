@@ -94,7 +94,7 @@ namespace RayTracer
                                     {
                                         Sort(tempArray, 0, "ASC");
                                         for (int j = 0; j < tempArray.GetLength(1); j++)
-                                            Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1, j]);
+                                            //Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1, j]);
                                         printed = true;
                                     }
                                     ///////einde test
