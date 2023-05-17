@@ -8,10 +8,10 @@ namespace RayTracer
         public Surface screen;
         public Application application;
         // constructor
-        public MyApplication(Surface screen, KeyboardState keyboard)
+        public MyApplication(Surface screen, KeyboardState keyboard, MouseState mouse)
         {
             this.screen = screen;
-            this.application = new Application(screen, keyboard);
+            this.application = new Application(screen, keyboard, mouse);
 
         }
         // initialize

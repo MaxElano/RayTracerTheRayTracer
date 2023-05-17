@@ -29,6 +29,7 @@ namespace RayTracer
         public Vector3 rightBottom;
 
         float resolution;
+        internal float fov;
 
         Surface screen;
         internal Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, float distanceToScreenPlane, Surface screen)
@@ -43,27 +44,25 @@ namespace RayTracer
             screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
 
             resolution = (float)screen.width / (float)screen.height;
+            fov = 45;
+
             SetScreenPlaneCorners();
         }
         internal void SetScreenPlaneCorners()
         {
-            screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
+            screenPlaneCenter = position + (distanceToScreenPlane * (fov/45)) * lookAtDirection;
             leftTop = screenPlaneCenter + upDirection - resolution * rightDirection;
             rightTop = screenPlaneCenter + upDirection + resolution * rightDirection;
             leftBottom = screenPlaneCenter - upDirection - resolution * rightDirection;
             rightBottom = screenPlaneCenter - upDirection + resolution * rightDirection;
         }
 
-        internal void FixRightDirection()
+        internal void RotateCamera(float pitch, float yaw)
         {
-            rightDirection = Vector3.Cross(lookAtDirection, upDirection);
-            rightDirection.Normalize();
-        }
-
-        internal void FixUpDirection()
-        {
-            upDirection = Vector3.Cross(lookAtDirection, rightDirection) * -1;
-            upDirection.Normalize();
+            lookAtDirection = new Vector3(
+            (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
+            (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
+            (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))));
         }
     }
 }

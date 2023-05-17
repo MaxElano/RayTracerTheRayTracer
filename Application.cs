@@ -11,29 +11,28 @@ namespace RayTracer
     {
         Raytracer raytracer;
         KeyboardState keyboard;
+        MouseState mouse;
         static internal float epsilon = 0.0001f;
         private float yaw, pitch;
 
-        internal Application(Surface screen, KeyboardState keyboard)
+        internal Application(Surface screen, KeyboardState keyboard, MouseState mouse)
         {
             raytracer = new Raytracer(screen);
             this.keyboard = keyboard;
+            this.mouse = mouse;
             yaw = 0f;
             pitch = 0f;
         }
         internal void Update()
         {
             raytracer.Render();
-            Input();
+            KeyboardInput();
+            MouseInput();
 
-            raytracer.camera.lookAtDirection = new Vector3(
-            (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
-            (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
-            (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch)))
-        );
+            raytracer.camera.RotateCamera(pitch, yaw);
         }
 
-        private void Input()
+        private void KeyboardInput()
         {
             float moveSpeed = 0.1f;
 
@@ -86,6 +85,15 @@ namespace RayTracer
                 raytracer.camera.rightDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.lookAtDirection, raytracer.camera.upDirection));
             }
 
+            raytracer.camera.SetScreenPlaneCorners();
+        }
+
+        private void MouseInput()
+        {
+            if (mouse.ScrollDelta.Y > 0 && raytracer.camera.fov < 180)
+                raytracer.camera.fov += mouse.ScrollDelta.Y * 3f;
+            if (mouse.ScrollDelta.Y < 0 && raytracer.camera.fov > 3)
+                raytracer.camera.fov += mouse.ScrollDelta.Y * 3f;
             raytracer.camera.SetScreenPlaneCorners();
         }
     }

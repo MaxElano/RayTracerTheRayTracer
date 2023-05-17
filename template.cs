@@ -50,6 +50,7 @@ namespace RayTracer
         public int programID;
 
         public KeyboardState keyboard;
+        public MouseState mouse;
 
         // All the data for the vertices interleaved in one array:
         // - XYZ in normalized device coordinates
@@ -71,6 +72,7 @@ namespace RayTracer
             })
         {
             keyboard = KeyboardState;
+            mouse = MouseState;
         }
 
         protected override void OnLoad()
@@ -80,7 +82,7 @@ namespace RayTracer
             GL.ClearColor(0, 0, 0, 0);
             GL.Disable(EnableCap.DepthTest);
             Surface screen = new(ClientSize.X, ClientSize.Y);
-            app = new MyApplication(screen, keyboard);
+            app = new MyApplication(screen, keyboard, mouse);
             screenID = app.screen.GenTexture();
             if (allowPrehistoricOpenGL)
             {
@@ -173,6 +175,7 @@ namespace RayTracer
             base.OnUpdateFrame(e);
             // called once per frame; app logic
             keyboard = KeyboardState;
+            mouse = MouseState;
             if (keyboard[Keys.Escape]) terminated = true;
         }
         protected override void OnRenderFrame(FrameEventArgs e)
