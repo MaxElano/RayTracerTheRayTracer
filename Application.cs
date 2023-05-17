@@ -13,7 +13,6 @@ namespace RayTracer
         KeyboardState keyboard;
         static internal float epsilon = 0.0001f;
         private float yaw, pitch;
-        private Vector3 front, right;
 
         internal Application(Surface screen, KeyboardState keyboard)
         {
@@ -44,58 +43,50 @@ namespace RayTracer
             if (keyboard[Keys.W])
             {
                 raytracer.camera.position += raytracer.camera.lookAtDirection * moveSpeed;
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.S])
             {
                 raytracer.camera.position -= raytracer.camera.lookAtDirection * moveSpeed;
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.A])
             {
                 raytracer.camera.position -= raytracer.camera.rightDirection * moveSpeed;
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.D])
             {
                 raytracer.camera.position += raytracer.camera.rightDirection * moveSpeed;
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.E])
             {
-                raytracer.camera.position += Vector3.UnitY * moveSpeed;
-                raytracer.camera.SetScreenPlaneCorners();
+                raytracer.camera.position += raytracer.camera.upDirection * moveSpeed;
             }
             if (keyboard[Keys.Q])
             {
-                raytracer.camera.position -= Vector3.UnitY * moveSpeed;
-                raytracer.camera.SetScreenPlaneCorners();
+                raytracer.camera.position -= raytracer.camera.upDirection * moveSpeed;
             }
 
             if (keyboard[Keys.Up])
             {
                 pitch += 2.5f;
                 raytracer.camera.upDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.rightDirection, raytracer.camera.lookAtDirection));
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.Down])
             {
                 pitch -= 2.5f;
                 raytracer.camera.upDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.rightDirection, raytracer.camera.lookAtDirection));
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.Left])
             {
                 yaw += 2.5f;
                 raytracer.camera.rightDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.lookAtDirection, raytracer.camera.upDirection));
-                raytracer.camera.SetScreenPlaneCorners();
             }
             if (keyboard[Keys.Right])
             {
                 yaw -= 2.5f;
                 raytracer.camera.rightDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.lookAtDirection, raytracer.camera.upDirection));
-                raytracer.camera.SetScreenPlaneCorners();
             }
+
+            raytracer.camera.SetScreenPlaneCorners();
         }
     }
 }
