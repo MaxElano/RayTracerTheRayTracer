@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
+using SixLabors.ImageSharp.ColorSpaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -24,7 +25,8 @@ namespace RayTracer
         float[,] tempArray = new float[2,10000];
         int tempint = 0;
 
-        bool testMode = false;
+        bool testMode = true;
+        bool printed = false;
 
         bool debugMode;
         internal Raytracer(Surface screen)
@@ -68,44 +70,46 @@ namespace RayTracer
                                 Vector3 specularColor = primaryIntersection.nearestPrimitive.speculalColor;
                                 Vector3 r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, primaryIntersection.normal) * primaryIntersection.normal;
                                 r.Normalize();
-                                float n = 2;
+                                float n = 20;
                                 Vector3 materialsAmbientColor = materialColor;
-                                Vector3 ambientLightRadiance = new Vector3(0.2f, 0.2f, 0.2f);
+                                Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
 
                                 if (testMode)
                                 {
                                     normal.Normalize();
                                     shadowRay.direction.Normalize();
                                     primaryRay.direction.Normalize();
-                                    //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
-                                    color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
-
+                                    color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
+                                    //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
 
                                     if (y < screen.height / 2 && x % 100 == 0 && tempint < tempArray.GetLength(1))
                                     {
                                         tempDistances.Add(Math.Max(0, Vector3.Dot(normal, shadowRay.direction)));
-                                        tempArray[1, tempint] = distance;
-                                        tempArray[0, tempint] = color.Y;
-                                        tempint++;
+                                            tempArray[1, tempint] = distance;
+                                            tempArray[0, tempint] = Math.Max(0, Vector3.Dot(normal, shadowRay.direction));
+                                            tempint++;
+                                        
                                     }
-                                    if (tempint == tempArray.GetLength(1))
+                                    if (tempint == tempArray.GetLength(1) && !printed)
                                     {
                                         Sort(tempArray, 0, "ASC");
                                         for (int j = 0; j < tempArray.GetLength(1); j++)
                                             Console.WriteLine(tempArray[0, j] + " __ " + tempArray[1, j]);
+                                        printed = true;
                                     }
                                     ///////einde test
                                 }
                                 else
                                 {
-                                    color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + light.rgbIntensity * (1 / (distance * distance)) * specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
-
-                                    //color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
+                                    color = light.rgbIntensity * (1 / (distance * distance)) * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) * materialColor;
                                     //color = light.rgbIntensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(normal, shadowRay.direction)) + specularColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(primaryRay.direction, r)), n)) + materialsAmbientColor * ambientLightRadiance;
                                 }
 
                             }
-                            tempColor = (int)Math.Round(color.X * 255 * 256 * 256 + color.Y * 255 * 256 + color.Z * 255);
+                            int tempColorR = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256;
+                            int tempColorG = ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256;
+                            int tempColorB = (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                            tempColor = tempColorR + tempColorG + tempColorB;
                             screen.pixels[x + y * width] = tempColor;
                         }
                     }
@@ -133,6 +137,8 @@ namespace RayTracer
             rayDirection.Normalize();
             return new Ray(intersection.position, rayDirection, length);
         }
+        
+        
         /// <summary>
         /// A generic routine to sort a two dimensional array of a specified type based on the specified column.
         /// </summary>
