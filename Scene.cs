@@ -19,11 +19,10 @@ namespace RayTracer
             primitives = new List<Primitive>();
             lights = new List<Light>();
 
-            primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
-            primitives.Add(new Sphere(new Vector3(0, 0, 3), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
-            primitives.Add(new Sphere(new Vector3(2.5f, 0, 3), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
-            primitives.Add(new Sphere(new Vector3(2.5f, 0, 1), 0.4f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
-            lights.Add(new Light(new Vector3(0, 0, -10), new Vector3(100, 100, 100)));
+            //primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
+            primitives.Add(new Sphere(new Vector3(0, 0, 2), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 1));
+            primitives.Add(new Sphere(new Vector3(0, 3, -2), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
+            lights.Add(new Light(new Vector3(0, -3, -6), new Vector3(100, 100, 100)));
         }
 
         internal Intersection PrimaryRayIntersection(Ray ray)
@@ -94,7 +93,7 @@ namespace RayTracer
                 tempNormal.Normalize();
                 Vector3 direction = pointOfIntersection - ray.origin;
                 direction.Normalize();
-                if(direction == ray.direction)
+                if (direction == ray.direction)
                     length = (pointOfIntersection - ray.origin).Length;
             }
             return new Intersection(length, primitive, tempNormal, pointOfIntersection);
