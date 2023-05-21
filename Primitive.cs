@@ -29,7 +29,7 @@ namespace RayTracer
     {
         internal Vector3 position;
         internal float radius;
-        internal Sphere(Vector3 position, float radius, Vector3 materialColor, Vector3 speculalColor) : base(materialColor, speculalColor)
+        internal Sphere(Vector3 position, float radius, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(materialColor, speculalColor, specularity)
         {
             this.position = position;
             this.radius = radius;
@@ -40,7 +40,7 @@ namespace RayTracer
     {
         internal Vector3 normal;
         internal Vector3 distanceToOrigin;
-        internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor) : base(materialColor, speculalColor)
+        internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(materialColor, speculalColor, specularity)
         {
             this.normal = normal;
             this.distanceToOrigin = distanceToOrigin;

@@ -19,45 +19,45 @@ namespace RayTracer
             primitives = new List<Primitive>();
             lights = new List<Light>();
 
-            primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
-            primitives.Add(new Sphere(new Vector3(0, 0, 2), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
-            primitives.Add(new Sphere(new Vector3(0, 1, -2), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
-            lights.Add(new Light(new Vector3(0, 0, -10), new Vector3(100, 100, 100)));
+            //primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
+            primitives.Add(new Sphere(new Vector3(0, 0, 2), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 1));
+            primitives.Add(new Sphere(new Vector3(0, 3, -2), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
+            lights.Add(new Light(new Vector3(0, -3, -6), new Vector3(100, 100, 100)));
         }
 
-        internal Intersection PrimaryRayIntersection(Ray ray)
-        {
-            float distance = 0;
-            Primitive nearestPrimitive = null;
-            Vector3 normal = Vector3.Zero;
-            Vector3 pointOfIntersection = Vector3.Zero;
-            int primitivesCount = primitives.Count;
-            for (int i = 0; i < primitivesCount; i++)
-            {
-                Primitive primitive = primitives[i];
-                Intersection tempIntersection = null;
-                if (primitives[i] is Plane)
-                {
-                    tempIntersection = collideRayPlane(ray, primitive as Plane);
-                }
-                else if (primitives[i] is Sphere)
-                {
-                    tempIntersection = collideRaySphere(ray, primitive as Sphere);
-                }
-                
-                if(tempIntersection.distance > Application.epsilon && (tempIntersection.distance < distance - Application.epsilon || distance == 0))
-                {
-                    distance = tempIntersection.distance;
-                    nearestPrimitive = primitive;
-                    normal = tempIntersection.normal;
-                    pointOfIntersection = tempIntersection.position;
-                }
-            }
-            Intersection intersection = new Intersection(distance, nearestPrimitive, normal, pointOfIntersection);
+        //internal Intersection PrimaryRayIntersection(Ray ray)
+        //{
+        //    float distance = 0;
+        //    Primitive nearestPrimitive = null;
+        //    Vector3 normal = Vector3.Zero;
+        //    Vector3 pointOfIntersection = Vector3.Zero;
+        //    int primitivesCount = primitives.Count;
+        //    for (int i = 0; i < primitivesCount; i++)
+        //    {
+        //        Primitive primitive = primitives[i];
+        //        Intersection tempIntersection = null;
+        //        if (primitives[i] is Plane)
+        //        {
+        //            tempIntersection = collideRayPlane(ray, primitive as Plane);
+        //        }
+        //        else if (primitives[i] is Sphere)
+        //        {
+        //            tempIntersection = collideRaySphere(ray, primitive as Sphere);
+        //        }
 
-            return intersection;
-        }
-        
+        //        if (tempIntersection.distance > Application.epsilon && (tempIntersection.distance < distance - Application.epsilon || distance == 0))
+        //        {
+        //            distance = tempIntersection.distance;
+        //            nearestPrimitive = primitive;
+        //            normal = tempIntersection.normal;
+        //            pointOfIntersection = tempIntersection.position;
+        //        }
+        //    }
+        //    Intersection intersection = new Intersection(distance, nearestPrimitive, normal, pointOfIntersection);
+
+        //    return intersection;
+        //}
+
 
         internal Vector3 FindShadowRayColor(Ray ray, Light light)
         {
@@ -93,7 +93,7 @@ namespace RayTracer
                 tempNormal.Normalize();
                 Vector3 direction = pointOfIntersection - ray.origin;
                 direction.Normalize();
-                if(direction == ray.direction)
+                if (direction == ray.direction)
                     length = (pointOfIntersection - ray.origin).Length;
             }
             return new Intersection(length, primitive, tempNormal, pointOfIntersection);
