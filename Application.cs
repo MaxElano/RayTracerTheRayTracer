@@ -26,10 +26,15 @@ namespace RayTracer
         internal void Update()
         {
             raytracer.Render();
-            KeyboardInput();
-            MouseInput();
+            if (!raytracer.debugMode)
+            {
+                KeyboardInput();
+                MouseInput();
 
-            raytracer.camera.RotateCamera(pitch, yaw);
+
+                raytracer.camera.RotateCamera(pitch, yaw);
+                raytracer.camera.screen.Print(raytracer.camera.fov.ToString(), raytracer.camera.screen.width / 25, raytracer.camera.screen.height / 25, 0xffffff);
+            }
         }
 
         private void KeyboardInput()
@@ -92,8 +97,9 @@ namespace RayTracer
         {
             if (mouse.ScrollDelta.Y > 0 && raytracer.camera.fov < 180)
                 raytracer.camera.fov += mouse.ScrollDelta.Y * 3f;
-            if (mouse.ScrollDelta.Y < 0 && raytracer.camera.fov > 3)
+            if (mouse.ScrollDelta.Y < 0 && raytracer.camera.fov > 1)
                 raytracer.camera.fov += mouse.ScrollDelta.Y * 3f;
+            raytracer.camera.fov = Math.Clamp(raytracer.camera.fov, 1, 180);
             raytracer.camera.SetScreenPlaneCorners();
         }
     }

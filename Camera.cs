@@ -31,13 +31,14 @@ namespace RayTracer
         float resolution;
         internal float fov;
 
-        Surface screen;
+        internal Surface screen;
         internal Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, float distanceToScreenPlane, Surface screen)
         {
             this.position = position;
             this.lookAtDirection = lookAtDirection;
             this.upDirection = upDirection;
             this.distanceToScreenPlane = distanceToScreenPlane;
+            this.screen = screen;
 
             rightDirection = Vector3.Cross(lookAtDirection, upDirection);
 
