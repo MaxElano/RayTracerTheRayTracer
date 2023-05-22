@@ -20,9 +20,15 @@ namespace RayTracer
             lights = new List<Light>();
 
             //primitives.Add(new Plane(new Vector3(0,1,0), new Vector3(0, -4, 0), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
-            primitives.Add(new Sphere(new Vector3(0, 0, 2), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 1));
-            primitives.Add(new Sphere(new Vector3(0, 3, -2), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-            lights.Add(new Light(new Vector3(0, -3, -6), new Vector3(100, 100, 100)));
+            primitives.Add(new Sphere(new Vector3(0, 0, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
+            primitives.Add(new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(0, 1, 0), new Vector3(0.8f, 0.8f, 0.8f)));
+            primitives.Add(new Sphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
+            
+            Sphere mirror = new Sphere(new Vector3(2.5f, 2.5f, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0.1f);
+            mirror.specularColor = new Vector3(0.7f, 0.7f, 0.7f);
+            primitives.Add(mirror);
+            
+            lights.Add(new Light(new Vector3(1.25f, 1.25f, -1), new Vector3(10, 10, 10)));
         }
 
         internal Intersection PrimaryRayIntersection(Ray ray)
