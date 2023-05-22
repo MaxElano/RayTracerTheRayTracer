@@ -26,6 +26,10 @@ namespace RayTracer
         internal void Update()
         {
             raytracer.Render();
+
+            if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt]) 
+                raytracer.debugMode = true;
+
             if (!raytracer.debugMode)
             {
                 KeyboardInput();
