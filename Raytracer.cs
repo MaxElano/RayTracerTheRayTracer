@@ -69,7 +69,7 @@ namespace RayTracer
                     {
                         primaryRay = FindPrimaryRay(x, height / 2, width, height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
-                        if (primaryIntersection.nearestPrimitive != null && primaryIntersection.nearestPrimitive is Sphere)
+                        if (primaryIntersection.nearestPrimitive != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
                             screen.Line(TX(camera.position.X), TY(camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
                         else
                             screen.Line(TX(camera.position.X), TY(camera.position.Z), TX(primaryRay.direction.X * 100), TY(-primaryRay.direction.Z * 100), 0xfcba03);
@@ -285,31 +285,25 @@ namespace RayTracer
                 }
                 else //Point is not in triangle
                 {
-                    return tempIntersection;
+                    return new Intersection(0, null, Vector3.Zero, Vector3.Zero);
                 }
             }
             else //Does not hit the plane of the triangle
             {
-                return tempIntersection;
+                return new Intersection(0, null, Vector3.Zero, Vector3.Zero);
             }
         }
 
         internal Intersection collideRayPlane(Ray ray, Plane primitive)
         {
-            Vector3 pointOfIntersection = Vector3.Zero;
-            Vector3 tempNormal = Vector3.Zero;
-            float length = 0;
-            if (Vector3.Dot(ray.direction, primitive.normal) != 0) //If the ray and plane are not parallel
+            float number = Vector3.Dot(ray.direction, primitive.normal);
+            if (number < 1)
             {
-                pointOfIntersection = ray.origin - ray.direction * (Vector3.Dot(ray.origin - primitive.distanceToOrigin, primitive.normal) / Vector3.Dot(ray.direction, primitive.normal));
-                tempNormal = primitive.normal;
-                tempNormal.Normalize();
-                Vector3 direction = pointOfIntersection - ray.origin;
-                direction.Normalize();
-                if (direction == ray.direction)
-                    length = (pointOfIntersection - ray.origin).Length;
+                float distance = Vector3.Dot(primitive.distanceToOrigin - ray.origin, primitive.normal) / number;
+                Vector3 position = ray.origin + ray.direction * distance;
+                return new Intersection(distance, primitive, primitive.normal, position);
             }
-            return new Intersection(length, primitive, tempNormal, pointOfIntersection);
+            return new Intersection(0, null, Vector3.Zero, Vector3.Zero);
         }
 
         internal Intersection collideRaySphere(Ray ray, Sphere primitive)

@@ -45,6 +45,7 @@ namespace RayTracer
         internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(materialColor, speculalColor, specularity)
         {
             this.normal = normal;
+            normal.Normalize();
             this.distanceToOrigin = distanceToOrigin;
         }
     }
@@ -63,7 +64,7 @@ namespace RayTracer
             this.pointA = pointA;
             this.pointB = pointB;
             this.pointC = pointC;
-            normal = Vector3.Cross((pointB - pointA), (pointC - pointA)) / Math.Abs(Vector3.Cross((pointB - pointA), (pointC - pointA)).Length);
+            normal = -Vector3.Cross((pointB - pointA), (pointC - pointA)) / Math.Abs(Vector3.Cross((pointB - pointA), (pointC - pointA)).Length);
             normal.Normalize();
         }
     }
