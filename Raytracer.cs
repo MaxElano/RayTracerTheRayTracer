@@ -148,7 +148,6 @@ namespace RayTracer
                         screen.pixels[x + y * width] = tempColor;
                     }
                 }
-
             }
         }
         internal Vector3 Trace(Ray ray, Scene scene) //Might Move the things from scene into raytracer for easier code but isn't easier yet so wip
@@ -180,12 +179,14 @@ namespace RayTracer
             //-------------Ray Hit Something So Do...-------------
             if (intersection.nearestPrimitive != null)
             {
-                if (intersection.nearestPrimitive.specularity == 1) //Pure specular
+                if (intersection.nearestPrimitive.specularity == 1 && ray.numberOfBounces < 10) //Pure specular
                 {
                     Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
                     reflectedVector.Normalize();
-                    Ray reflectedRay = new Ray(intersection.position, reflectedVector);
+                    Ray reflectedRay = new Ray(intersection.position, reflectedVector, 0, ray.numberOfBounces + 1);
                     color = intersection.nearestPrimitive.materialColor * Trace(reflectedRay, scene);
+
+                    return color;
                 }
                 else //Phong Shading Model
                 {
@@ -201,18 +202,31 @@ namespace RayTracer
                         Vector3 r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, intersection.normal) * intersection.normal;
                         r.Normalize();
 
-                        float n = 2;
+                        float n = 20;
 
-                        if (intensity != Vector3.Zero)
+                        if (intersection.nearestPrimitive.specularity != 0 && ray.numberOfBounces < 10)
+                        {
+                            Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
+                            reflectedVector.Normalize();
+                            Ray reflectedRay = new Ray(intersection.position, reflectedVector, 0, ray.numberOfBounces + 1);
+                            Vector3 tempColor = intersection.nearestPrimitive.specularColor * Trace(reflectedRay, scene);
+                            color += light.rgbIntensity * (1 / (distance * distance)) * intersection.nearestPrimitive.materialColor * Math.Max(0, Vector3.Dot(intersection.normal, shadowRay.direction)) + tempColor;
+                        }
+                        else if (intensity != Vector3.Zero)
                         {
                             color += light.rgbIntensity * (1 / (distance * distance)) * (intersection.nearestPrimitive.materialColor * Math.Max(0, Vector3.Dot(intersection.normal, shadowRay.direction)) + intersection.nearestPrimitive.speculalColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-ray.direction, r)), n));
                         }
                     }
-                }
-                Vector3 materialsAmbientColor = intersection.nearestPrimitive.materialColor;
-                Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
 
-                return color += materialsAmbientColor * ambientLightRadiance;
+                    Vector3 materialsAmbientColor = intersection.nearestPrimitive.materialColor;
+                    Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
+                    
+                    return color += materialsAmbientColor * ambientLightRadiance;
+                }
+                //Vector3 materialsAmbientColor = intersection.nearestPrimitive.materialColor;         // -------Verplaatst naar in de if statements zodat spiegels zwart konden worden als ze niks raaktten.
+                //Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
+                //
+                //return color += materialsAmbientColor * ambientLightRadiance;
             }
             else
             {

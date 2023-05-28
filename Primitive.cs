@@ -16,12 +16,14 @@ namespace RayTracer
         internal Vector3 speculalColor;
         internal Vector3 materialColor;
         internal float specularity;
+        internal Vector3 specularColor;
 
         internal Primitive(Vector3 materialColor, Vector3 speculalColor, float specularity)
         {
             this.materialColor = materialColor;
             this.speculalColor = speculalColor; //White or gray for plastics and same as base color for metals;
             this.specularity = specularity;
+            this.specularColor = materialColor;
         }
     }
 
