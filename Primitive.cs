@@ -13,17 +13,44 @@ namespace RayTracer
     //Initially (until you implement materials) it may also be useful to add a color to the primitive class.
     internal class Primitive
     {
+        internal enum Materials { vacuum, air, water, ice, plastic, window_glass, diamond };
         internal Vector3 speculalColor;
         internal Vector3 materialColor;
         internal float specularity;
         internal Vector3 specularColor;
+        internal float opticalDensity;
 
-        internal Primitive(Vector3 materialColor, Vector3 speculalColor, float specularity)
+        internal Primitive(Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum)
         {
             this.materialColor = materialColor;
             this.speculalColor = speculalColor; //White or gray for plastics and same as base color for metals;
             this.specularity = specularity;
             this.specularColor = materialColor;
+            opticalDensity = DetermineOpticalDensity(material);
+
+        }
+        
+        private float DetermineOpticalDensity(Materials material)
+        {
+            switch (material)
+            {
+                case Materials.vacuum:
+                    return 1;
+                case Materials.air:
+                    return 1.000293f;
+                case Materials.water:
+                    return 1.333f;
+                case Materials.ice:
+                    return 1.31f;
+                case Materials.plastic:
+                    return 1.49f;
+                case Materials.window_glass:
+                    return 1.52f;
+                case Materials.diamond:
+                    return 2.42f;
+                default:
+                    return 1;
+            }
         }
     }
 
@@ -31,7 +58,7 @@ namespace RayTracer
     {
         internal Vector3 position;
         internal float radius;
-        internal Sphere(Vector3 position, float radius, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(materialColor, speculalColor, specularity)
+        internal Sphere(Vector3 position, float radius, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(materialColor, speculalColor, specularity, material)
         {
             this.position = position;
             this.radius = radius;
@@ -42,7 +69,7 @@ namespace RayTracer
     {
         internal Vector3 normal;
         internal Vector3 distanceToOrigin;
-        internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(materialColor, speculalColor, specularity)
+        internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(materialColor, speculalColor, specularity, material)
         {
             this.normal = normal;
             normal.Normalize();
@@ -59,7 +86,7 @@ namespace RayTracer
         internal float alpha;
         internal float beta;
         internal float gamma;
-        internal Triangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(materialColor, speculalColor, specularity)
+        internal Triangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(materialColor, speculalColor, specularity, material)
         {
             this.pointA = pointA;
             this.pointB = pointB;
