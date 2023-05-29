@@ -37,10 +37,6 @@ namespace RayTracer
         }
         internal void Render()
         {
-            int width = screen.width;
-            int height = screen.height;
-
-
             if (debugMode)
             {
                 screen.Clear(0x000000);
@@ -64,10 +60,10 @@ namespace RayTracer
                         }
                     }
 
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < screen.width; x++)
                     if (x % 20 == 0 || x == 0)
                     {
-                        primaryRay = FindPrimaryRay(x, height / 2, width, height);
+                        primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
                         if (primaryIntersection.nearestPrimitive != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
                             screen.Line(TX(camera.position.X), TY(camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
@@ -96,17 +92,17 @@ namespace RayTracer
             }
             else
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < screen.height; y++)
                 {
-                    for (int x = 0; x < width; x++)
+                    for (int x = 0; x < screen.width; x++)
                     {
-                        screen.pixels[x + y * width] = 0;
-                        primaryRay = FindPrimaryRay(x, y, width, height);
+                        screen.pixels[x + y * screen.width] = 0;
+                        primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
 
                         Vector3 color = Trace(primaryRay, scene);
                         int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
-                        screen.pixels[x + y * width] = tempColor;
+                        screen.pixels[x + y * screen.width] = tempColor;
                     }
                 }
             }
