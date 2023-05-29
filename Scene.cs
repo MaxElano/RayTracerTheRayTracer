@@ -31,7 +31,8 @@ namespace RayTracer
             mirror.specularColor = new Vector3(0.7f, 0.7f, 0.7f);
             primitives.Add(mirror);
             
-            lights.Add(new Light(new Vector3(1.25f, 5, -3), new Vector3(10, 10, 10)));
+            lights.Add(new Light(new Vector3(-5f, 0, 5), new Vector3(10, 10, 10)));
+
         }
     }
 }

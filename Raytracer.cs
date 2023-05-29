@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.ES11;
+﻿using Microsoft.VisualBasic;
+using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
 using SixLabors.ImageSharp.ColorSpaces;
 using System;
@@ -80,11 +81,9 @@ namespace RayTracer
                             {
                                 light = scene.lights[i];
                                 shadowRay = FindShadowRay(primaryIntersection, light);
-                                shadowIntersection = PrimaryRayIntersection(shadowRay, scene);
-
-                                if (shadowIntersection.nearestPrimitive != null)
-                                    screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xff1100);
-                                else if (!(shadowIntersection.nearestPrimitive is Sphere))
+                                shadowIntersection = ShadowRayIntersection(shadowRay, scene);
+                                
+                                if(shadowIntersection.position == Vector3.Zero)
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
                             }
                         }
@@ -185,7 +184,7 @@ namespace RayTracer
 
                     Vector3 materialsAmbientColor = intersection.nearestPrimitive.materialColor;
                     Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
-                    
+
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
                 if (intersection.nearestPrimitive is Triangle)
@@ -236,6 +235,44 @@ namespace RayTracer
 
             return intersection;
         }
+
+        internal Intersection ShadowRayIntersection(Ray ray, Scene scene)
+        {
+            float distance = 0;
+            Primitive nearestPrimitive = null;
+            Vector3 normal = Vector3.Zero;
+            Vector3 pointOfIntersection = Vector3.Zero;
+            int primitivesCount = scene.primitives.Count;
+            Intersection tempIntersection = null;
+            for (int i = 0; i < primitivesCount; i++)
+            {
+                if (scene.primitives[i] is Plane)
+                {
+                    tempIntersection = collideRayPlane(ray, scene.primitives[i] as Plane);
+                }
+                else if (scene.primitives[i] is Sphere)
+                {
+                    tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
+                    if (!(tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon))
+                        tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
+                }
+                else if (scene.primitives[i] is Triangle)
+                {
+                    tempIntersection = collideRayTriangle(ray, scene.primitives[i] as Triangle);
+                }
+                if (tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon)
+                {
+                    distance = tempIntersection.distance;
+                    nearestPrimitive = scene.primitives[i];
+                    normal = tempIntersection.normal;
+                    pointOfIntersection = tempIntersection.position;
+                }
+            }
+            Intersection intersection = new Intersection(distance, nearestPrimitive, normal, pointOfIntersection);
+
+            return intersection;
+        }
+
         internal Vector3 FindShadowRayColor(Ray ray, Light light, Scene scene)
         {
             int primitivesCount = scene.primitives.Count;
@@ -271,7 +308,7 @@ namespace RayTracer
                 float beta = Vector3.Dot(Vector3.Cross((primitive.pointA - primitive.pointC), (tempIntersection.position - primitive.pointC)), primitive.normal) / Vector3.Dot(Vector3.Cross((primitive.pointB - primitive.pointA), (primitive.pointC - primitive.pointA)), primitive.normal);
                 float gamma = Vector3.Dot(Vector3.Cross((primitive.pointB - primitive.pointA), (tempIntersection.position - primitive.pointA)), primitive.normal) / Vector3.Dot(Vector3.Cross((primitive.pointB - primitive.pointA), (primitive.pointC - primitive.pointA)), primitive.normal);
 
-                if(0 <= alpha && alpha <= 1 && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1) //Point is inside triangle
+                if (0 <= alpha && alpha <= 1 && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1) //Point is inside triangle
                 {
                     primitive.alpha = alpha;
                     primitive.beta = beta;
@@ -302,7 +339,7 @@ namespace RayTracer
             return new Intersection(0, null, Vector3.Zero, Vector3.Zero);
         }
 
-        internal Intersection collideRaySphere(Ray ray, Sphere primitive)
+        internal Intersection collideRaySphere(Ray ray, Sphere primitive, bool secondaryCollision = false)
         {
             float length = 0;
             Vector3 pointOfIntersection = Vector3.Zero;
@@ -315,11 +352,15 @@ namespace RayTracer
             float d = b * b - 4 * a * c;
             if (d >= 0 && a >= 0) //If there are solutions
             {
-                t = (float)((-b - Math.Sqrt(d)) / (2 * a));
+                if (!secondaryCollision)
+                    t = (float)((-b - Math.Sqrt(d)) / (2 * a));
+                else
+                    t = (float)((-b + Math.Sqrt(d)) / (2 * a));
+
                 if (t > 0)
                 {
-                    length = (ray.direction * t).Length;
                     pointOfIntersection = ray.origin + ray.direction * t;
+                    length = (ray.direction * t).Length;
                     tempNormal = pointOfIntersection - primitive.position;
                     tempNormal.Normalize();
                 }
@@ -348,13 +389,12 @@ namespace RayTracer
 
         private int TX(float X)
         {
-            return (int)(X * 60 + screen.width / 2);
+            return (int)(-X * 60 + screen.width / 2);
         }
 
         private int TY(float Z)
         {
             return (int)(Z * 60 + screen.height * 0.9f);
         }
-
     }
 }
