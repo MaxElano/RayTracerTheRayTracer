@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static OpenTK.Graphics.OpenGL.GL;
 
 namespace RayTracer
 {
@@ -20,7 +21,7 @@ namespace RayTracer
         Scene scene;
         Camera debugCamera;
         internal Camera camera;
-        Surface screen;
+        Surface screen, map;
 
         List<float> tempDistances = new List<float>();
         float[,] tempArray = new float[2, 10000];
@@ -35,6 +36,7 @@ namespace RayTracer
             camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
             this.screen = screen;
+            map = new Surface("../../../assets/sus.png");
         }
         internal void Render()
         {
@@ -89,6 +91,8 @@ namespace RayTracer
                                 
                                 if(shadowIntersection.position == Vector3.Zero)
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
+                                else
+                                    screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xff1100);
                             }
                         }
                     }
@@ -143,6 +147,47 @@ namespace RayTracer
             //-------------Ray Hit Something So Do...-------------
             if (intersection.nearestPrimitive != null)
             {
+                if (intersection.nearestPrimitive is TexturedSphere)
+                {
+                    var sphere = (TexturedSphere)intersection.nearestPrimitive;
+
+                    double theta = Math.Acos((intersection.position.Z - sphere.position.Z) / sphere.radius);
+                    double phi = Math.Atan2(intersection.position.Y - sphere.position.Y, intersection.position.X - sphere.position.X);
+                    double u = (phi + Math.PI) / (2 * Math.PI);
+                    double v = theta / Math.PI;
+
+                    intersection.nearestPrimitive.materialColor = CheckboardPattern(u, v, 32);
+                }
+                else if (intersection.nearestPrimitive is TexturedTriangle)
+                {
+                    var triangle = (TexturedTriangle)intersection.nearestPrimitive;
+                    double uA = 0;
+                    double uB = 1;
+                    double uC = 0.5;
+                    double vA = 0;
+                    double vB = 0;
+                    double vC = 1;
+
+
+                    double uP = triangle.alpha * uA + triangle.beta * uB + triangle.gamma * uC;
+                    double vP = triangle.alpha * vA + triangle.beta * vB + triangle.gamma * vC;
+
+                    intersection.nearestPrimitive.materialColor = CheckboardPattern(uP, vP, 32);
+                }
+                else if (intersection.nearestPrimitive is TexturedPlane)
+                {
+                    var plane = (TexturedPlane)intersection.nearestPrimitive;
+                    Vector3 vectorU = new Vector3(-1, 0, 0);
+                    Vector3 vectorV = Vector3.Normalize(Vector3.Cross(Vector3.Normalize(plane.normal), Vector3.Normalize(vectorU)));
+                    Double u = intersection.position.X / vectorU.X;
+                    Double v = intersection.position.Z / vectorV.Z;
+                    int uInt = (int)u;
+                    int vInt = (int)v;
+                    u = u - uInt;
+                    v = v - vInt;
+                    intersection.nearestPrimitive.materialColor = CheckboardPattern(u, v, 4);
+                }
+
                 if (intersection.nearestPrimitive.specularity == 1 && ray.numberOfBounces < 10) //Pure specular
                 {
                     Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
@@ -205,6 +250,25 @@ namespace RayTracer
                 return Vector3.Zero;
             }
         }
+
+        internal Vector3 CheckboardPattern(double u, double v, int factor)
+        {
+            int opacity = (int)(u*factor) + (int)(v*factor) & 1;
+            Vector3 finalColor = new Vector3(1f, 1f, 1f);
+
+            return opacity * finalColor;
+        }
+
+        internal Vector3 Sus(double u, double v)
+        {
+            u = (int)(u * map.width);
+            v = (int)(v * map.height);
+            
+            float opacity = ((float)(map.pixels[(int)u + (int)v * 255] & 255)) / 256;
+
+            return new Vector3(1f, 1f, 1f) * opacity;
+        }
+
         internal Intersection PrimaryRayIntersection(Ray ray, Scene scene)
         {
             float distance = 0;

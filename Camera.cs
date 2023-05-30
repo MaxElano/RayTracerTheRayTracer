@@ -61,9 +61,10 @@ namespace RayTracer
         internal void RotateCamera(float pitch, float yaw)
         {
             lookAtDirection = new Vector3(
-            (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
+            (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch))),
             (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
-            (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))));
+            (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch))));
+            lookAtDirection.Normalize();
         }
     }
 }

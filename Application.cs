@@ -20,15 +20,22 @@ namespace RayTracer
             raytracer = new Raytracer(screen);
             this.keyboard = keyboard;
             this.mouse = mouse;
-            yaw = 0f;
+            yaw = 180f;
             pitch = 0f;
         }
         internal void Update()
         {
             raytracer.Render();
 
-            if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt]) 
+            if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt])
+            {
+                raytracer.camera.position = Vector3.Zero;
+                raytracer.camera.lookAtDirection = new Vector3(0, 0, 1);
+                raytracer.camera.rightDirection = new Vector3(-1, 0, 0);
+                raytracer.camera.upDirection = new Vector3(0, 1, 0);
+                raytracer.camera.SetScreenPlaneCorners();
                 raytracer.debugMode = true;
+            }
 
             if (!raytracer.debugMode)
             {
@@ -36,7 +43,6 @@ namespace RayTracer
                 MouseInput();
 
 
-                raytracer.camera.RotateCamera(pitch, yaw);
                 raytracer.camera.screen.Print(raytracer.camera.fov.ToString(), raytracer.camera.screen.width / 25, raytracer.camera.screen.height / 25, 0xffffff);
             }
         }
@@ -76,22 +82,36 @@ namespace RayTracer
             if (keyboard[Keys.Up])
             {
                 pitch += 2.5f;
-                raytracer.camera.upDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.rightDirection, raytracer.camera.lookAtDirection));
+                if (pitch > 89.0f)
+                {
+                    pitch = 89.0f;
+                }
+                raytracer.camera.lookAtDirection = Vector3.Normalize(CalculateFrontDirection());
+                raytracer.camera.upDirection = Vector3.Normalize(CalculateUpDirection());
             }
             if (keyboard[Keys.Down])
             {
                 pitch -= 2.5f;
-                raytracer.camera.upDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.rightDirection, raytracer.camera.lookAtDirection));
+                if (pitch < -89.0f)
+                {
+                    pitch = -89.0f;
+                }
+                raytracer.camera.lookAtDirection = Vector3.Normalize(CalculateFrontDirection());
+                raytracer.camera.upDirection = Vector3.Normalize(CalculateUpDirection());
             }
             if (keyboard[Keys.Left])
             {
-                yaw += 2.5f;
-                raytracer.camera.rightDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.lookAtDirection, raytracer.camera.upDirection));
+                yaw -= 2.5f;
+                raytracer.camera.lookAtDirection = Vector3.Normalize(CalculateFrontDirection());
+                raytracer.camera.rightDirection = Vector3.Normalize(CalculateRightDirection());
+                raytracer.camera.upDirection = Vector3.Normalize(CalculateUpDirection());
             }
             if (keyboard[Keys.Right])
             {
-                yaw -= 2.5f;
-                raytracer.camera.rightDirection = Vector3.Normalize(Vector3.Cross(raytracer.camera.lookAtDirection, raytracer.camera.upDirection));
+                yaw += 2.5f;
+                raytracer.camera.lookAtDirection = Vector3.Normalize(CalculateFrontDirection());
+                raytracer.camera.rightDirection = Vector3.Normalize(CalculateRightDirection());
+                raytracer.camera.upDirection = Vector3.Normalize(CalculateUpDirection());
             }
 
             raytracer.camera.SetScreenPlaneCorners();
@@ -105,6 +125,42 @@ namespace RayTracer
                 raytracer.camera.fov += mouse.ScrollDelta.Y * 3f;
             raytracer.camera.fov = Math.Clamp(raytracer.camera.fov, 1, 180);
             raytracer.camera.SetScreenPlaneCorners();
+        }
+
+        private Vector3 CalculateFrontDirection()
+        {
+            float yawRad = MathHelper.DegreesToRadians(yaw);
+            float pitchRad = MathHelper.DegreesToRadians(pitch);
+
+            float cosYaw = (float)Math.Cos(yawRad);
+            float sinYaw = (float)Math.Sin(yawRad);
+            float cosPitch = (float)Math.Cos(pitchRad);
+            float sinPitch = (float)Math.Sin(pitchRad);
+
+            return new Vector3(
+                sinYaw * cosPitch,
+                sinPitch,
+                -cosYaw * cosPitch
+            );
+        }
+
+        private Vector3 CalculateRightDirection()
+        {
+            float yawRad = MathHelper.DegreesToRadians(yaw);
+
+            float cosYaw = (float)Math.Cos(yawRad);
+            float sinYaw = (float)Math.Sin(yawRad);
+
+            return new Vector3(
+                cosYaw,
+                0f,
+                sinYaw
+            );
+        }
+
+        private Vector3 CalculateUpDirection()
+        {
+            return Vector3.Cross(CalculateRightDirection(), CalculateFrontDirection());
         }
     }
 }
