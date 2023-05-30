@@ -13,12 +13,17 @@ namespace RayTracer
         internal Vector3 direction;
         internal float intersectionDistance;
         internal int numberOfBounces;
-        internal Ray(Vector3 origin, Vector3 direction, float intersectionDistance = 0, int numberOfBounces = 0)
+        internal float opticalDensity;
+        internal Ray(Vector3 origin, Vector3 direction, float intersectionDistance = 0, int numberOfBounces = 0, float opticalDensity = 0, Primitive.Materials material = Primitive.Materials.air)
         {
             this.origin = origin;
             this.direction = direction;
             this.intersectionDistance = intersectionDistance;
             this.numberOfBounces = numberOfBounces;
+            this.opticalDensity = opticalDensity;
+            if(opticalDensity == 0)
+                this.opticalDensity = Primitive.DetermineOpticalDensity(material);
+
         }
     }
 }

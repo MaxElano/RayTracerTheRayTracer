@@ -29,6 +29,8 @@ namespace RayTracer
         Ray primaryRay;
         Intersection primaryIntersection;
 
+        int numberOfBouncesAllowed = 5;
+
         internal bool debugMode;
         internal Raytracer(Surface screen)
         {
@@ -40,10 +42,6 @@ namespace RayTracer
         }
         internal void Render()
         {
-            int width = screen.width;
-            int height = screen.height;
-
-
             if (debugMode)
             {
                 screen.Clear(0x000000);
@@ -67,10 +65,10 @@ namespace RayTracer
                         }
                     }
 
-                for (int x = 0; x < width; x++)
-                    if (x % 20 == 0 || x == 0)
+                for (int x = 0; x < screen.width; x++)
+                    if (x % 10 == 0 || x == 0)
                     {
-                        primaryRay = FindPrimaryRay(x, height / 2, width, height);
+                        primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
                         if (primaryIntersection.nearestPrimitive != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
                             screen.Line(TX(camera.position.X), TY(camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
@@ -88,28 +86,40 @@ namespace RayTracer
                                 light = scene.lights[i];
                                 shadowRay = FindShadowRay(primaryIntersection, light);
                                 shadowIntersection = ShadowRayIntersection(shadowRay, scene);
-                                
-                                if(shadowIntersection.position == Vector3.Zero)
+
+                                if (shadowIntersection.position == Vector3.Zero)
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
                                 else
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xff1100);
+                            }
+
+                            Ray refractedRay = FindRefractionRay(primaryIntersection, primaryRay);
+                            float refractedR = 1;
+                            if (refractedRay is not null && primaryRay.numberOfBounces < numberOfBouncesAllowed)
+                            {
+                                Vector3 normal = primaryIntersection.normal;
+                                if (Vector3.Dot(normal, primaryRay.direction) > 0)
+                                    normal *= -1;
+                                float tempR = ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity)) * ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity));
+                                refractedR = tempR + (1 - tempR) * (float)(Math.Pow(1 - Vector3.Dot(primaryRay.direction, normal), 5));
+                                screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(refractedRay.origin.X + refractedRay.direction.X * 90), TY(-(refractedRay.origin.Z + refractedRay.direction.Z * 90)), 0x1AAAAA);
                             }
                         }
                     }
             }
             else
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < screen.height; y++)
                 {
-                    for (int x = 0; x < width; x++)
+                    for (int x = 0; x < screen.width; x++)
                     {
-                        screen.pixels[x + y * width] = 0;
-                        primaryRay = FindPrimaryRay(x, y, width, height);
+                        screen.pixels[x + y * screen.width] = 0;
+                        primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
 
                         Vector3 color = Trace(primaryRay, scene);
                         int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
-                        screen.pixels[x + y * width] = tempColor;
+                        screen.pixels[x + y * screen.width] = tempColor;
                     }
                 }
             }
@@ -193,7 +203,7 @@ namespace RayTracer
                     Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
                     reflectedVector.Normalize();
                     Ray reflectedRay = new Ray(intersection.position, reflectedVector, 0, ray.numberOfBounces + 1);
-                    color = intersection.nearestPrimitive.materialColor * Trace(reflectedRay, scene);
+                    color += intersection.nearestPrimitive.materialColor * Trace(reflectedRay, scene);
                 }
                 else //Phong Shading Model
                 {
@@ -217,7 +227,7 @@ namespace RayTracer
 
                         n = 20;
 
-                        if (intersection.nearestPrimitive.specularity != 0 && ray.numberOfBounces < 10)
+                        if (intersection.nearestPrimitive.specularity != 0 && ray.numberOfBounces < numberOfBouncesAllowed) //Partly specular
                         {
                             Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
                             reflectedVector.Normalize();
@@ -236,6 +246,24 @@ namespace RayTracer
 
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
+                
+                Ray refractedRay = FindRefractionRay(intersection, ray);
+                float refractedR = 1;
+                if (refractedRay is not null && ray.numberOfBounces < numberOfBouncesAllowed)
+                {
+                    Vector3 normal = intersection.normal;
+                    if (Vector3.Dot(normal, ray.direction) > 0)
+                    {
+                        normal *= -1;
+                    }
+                    float pOD = ray.opticalDensity; //Previous Optical Density
+                    float nOD = refractedRay.opticalDensity; //Next Optical Density
+                    float tempR = ((nOD - pOD) / (nOD + pOD)) * ((nOD - pOD) / (nOD + pOD));
+                    refractedR = tempR + (1 - tempR) * (float)(Math.Pow(1 - Vector3.Dot(ray.direction, normal), 5));
+                    color *= refractedR;
+                    color += (1 - refractedR) * Trace(refractedRay, scene);
+                }
+
                 if (intersection.nearestPrimitive is Triangle)
                 {
                     return new Vector3(color.X * (intersection.nearestPrimitive as Triangle).alpha, color.Y * (intersection.nearestPrimitive as Triangle).beta, color.Z * (intersection.nearestPrimitive as Triangle).gamma);
@@ -455,6 +483,29 @@ namespace RayTracer
             return new Ray(intersection.position, rayDirection, length);
         }
 
+        internal Ray FindRefractionRay(Intersection intersection, Ray ray)
+        {
+            Vector3 d = ray.direction;
+            Vector3 n = intersection.normal;
+            float pOD = ray.opticalDensity; //Previous Optical Density
+            float nOD = intersection.nearestPrimitive.opticalDensity; //Next Optical Density
+            if (Vector3.Dot(n, d) > 0) //Moving out of a sphere
+            {
+                n *= -1;
+                nOD = scene.sceneOpticalDensity;
+            }
+            float cosT = Math.Clamp(Vector3.Dot(d, n), 0, 1);
+            float sqrt = 1 - ((pOD * pOD) / (nOD * nOD)) * (1 - cosT * cosT);
+            if(sqrt >= 0)
+            {
+                Vector3 t = (pOD / nOD) * (d + cosT * n) - (float)Math.Sqrt(sqrt) * n;
+                return new Ray(intersection.position, t, 0, ray.numberOfBounces + 1, nOD);
+            }
+            else //Doesn't refract
+            {
+                return null;
+            }
+        }
         private int TX(float X)
         {
             return (int)(-X * 60 + screen.width / 2);

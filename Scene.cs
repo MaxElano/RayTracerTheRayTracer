@@ -14,6 +14,7 @@ namespace RayTracer
     {
         internal List<Primitive> primitives;
         internal List<Light> lights;
+        internal float sceneOpticalDensity = Primitive.DetermineOpticalDensity(Primitive.Materials.air);
         internal Scene()
         {
             primitives = new List<Primitive>();
