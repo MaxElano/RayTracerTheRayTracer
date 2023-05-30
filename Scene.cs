@@ -14,7 +14,7 @@ namespace RayTracer
     {
         internal List<Primitive> primitives;
         internal List<Light> lights;
-        internal float sceneOpticalDensity = Primitive.DetermineOpticalDensity(Primitive.Materials.diamond);
+        internal float sceneOpticalDensity = Primitive.DetermineOpticalDensity(Primitive.Materials.air);
         internal Scene()
         {
             primitives = new List<Primitive>();
@@ -24,7 +24,7 @@ namespace RayTracer
             //primitives.Add(new Plane(new Vector3(0,0,1), new Vector3(0, 0, 2), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
 
             //primitives.Add(new Sphere(new Vector3(0, 0, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-            primitives.Add(new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0 ,Primitive.Materials.air));
+            primitives.Add(new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0 ,Primitive.Materials.plastic));
             primitives.Add(new Sphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
             //primitives.Add(new TexturedTriangle(new Vector3(-2, 0, 2), new Vector3(2, 0, 2), new Vector3(0, 5, 2), new Vector3(1, 1, 1), new Vector3(1, 1, 1)));
 
