@@ -1,6 +1,5 @@
 ﻿
 using OpenTK.Windowing.GraphicsLibraryFramework;
-
 using OpenTK.Mathematics;
 
 namespace RayTracer
@@ -45,6 +44,7 @@ namespace RayTracer
 
                 raytracer.camera.screen.Print(raytracer.camera.fov.ToString(), raytracer.camera.screen.width / 25, raytracer.camera.screen.height / 25, 0xffffff);
             }
+
         }
 
         private void KeyboardInput()
