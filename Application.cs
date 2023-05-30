@@ -29,7 +29,7 @@ namespace RayTracer
 
             if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt])
             {
-                raytracer.camera.position = Vector3.Zero;
+
                 raytracer.camera.lookAtDirection = new Vector3(0, 0, 1);
                 raytracer.camera.rightDirection = new Vector3(-1, 0, 0);
                 raytracer.camera.upDirection = new Vector3(0, 1, 0);
