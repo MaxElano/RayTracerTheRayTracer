@@ -30,7 +30,7 @@ namespace RayTracer
 
         }
         
-        private float DetermineOpticalDensity(Materials material)
+        internal static float DetermineOpticalDensity(Materials material)
         {
             switch (material)
             {
