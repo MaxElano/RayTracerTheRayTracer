@@ -30,7 +30,7 @@ namespace RayTracer
         public Vector3 rightBottom;
 
         float resolution;
-        internal float fov;
+        internal float fov, pitch, yaw;
 
         internal Surface screen;
         internal Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, float distanceToScreenPlane, Surface screen)
@@ -50,6 +50,7 @@ namespace RayTracer
 
             SetScreenPlaneCorners();
         }
+
         internal void SetScreenPlaneCorners()
         {
             screenPlaneCenter = position + (distanceToScreenPlane * (fov/45)) * lookAtDirection;
@@ -59,13 +60,55 @@ namespace RayTracer
             rightBottom = screenPlaneCenter - upDirection + resolution * rightDirection;
         }
 
-        internal void RotateCamera(float pitch, float yaw)
+        internal void SetFrontDirection()
         {
             lookAtDirection = new Vector3(
-            (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch))),
-            (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
-            (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch))));
+                (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
+                (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
+                (float)(-Math.Cos(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch)))
+            );
             lookAtDirection.Normalize();
+        }
+
+        internal void SetRightDirection()
+        {
+            rightDirection = new Vector3(
+                (float)Math.Cos(MathHelper.DegreesToRadians(yaw)),
+                0f,
+                (float)Math.Sin(MathHelper.DegreesToRadians(yaw))
+            );
+            rightDirection.Normalize();
+        }
+
+        internal void SetUpDirection()
+        {
+            upDirection = Vector3.Cross(rightDirection, lookAtDirection);
+            upDirection.Normalize();
+        }
+
+        internal void LookAt(Primitive target)
+        {
+            if (target is Sphere)
+            {
+                var sphere = (Sphere)target;
+                pitch = pitch;
+                yaw = yaw;
+                lookAtDirection = new Vector3(position.X - sphere.position.X, sphere.position.Y - position.Y, sphere.position.Z - position.Z);
+            }
+            lookAtDirection.Normalize();
+            CalculateNewPitchYaw();
+
+            SetFrontDirection();
+            SetRightDirection();
+            SetUpDirection();
+        }
+
+        internal void CalculateNewPitchYaw()
+        {
+            pitch = (float)MathHelper.RadiansToDegrees(Math.Asin(lookAtDirection.Y));
+            double tempX = lookAtDirection.X / Math.Cos(MathHelper.DegreesToRadians(pitch));
+            double tempZ = lookAtDirection.Z / Math.Cos(MathHelper.DegreesToRadians(pitch));
+            yaw = (float)MathHelper.RadiansToDegrees(Math.Atan2(tempX, tempZ)) + 180f;
         }
     }
 }

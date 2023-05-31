@@ -19,8 +19,7 @@ namespace RayTracer
     //For the middle row of pixels (typically line 256 for a 512x512 window), it generates debug output by visualizing every Nthray (where N is e.g. 10).
     internal class Raytracer
     {
-        Scene scene;
-        Camera debugCamera;
+        internal Scene scene;
         internal Camera camera;
         Surface screen, map;
 
