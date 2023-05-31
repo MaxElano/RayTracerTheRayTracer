@@ -1,6 +1,5 @@
 ﻿
 using OpenTK.Windowing.GraphicsLibraryFramework;
-
 using OpenTK.Mathematics;
 
 namespace RayTracer

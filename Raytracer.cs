@@ -49,7 +49,7 @@ namespace RayTracer
                 screen.Clear(0x000000);
 
                 screen.Line(TX(camera.leftBottom.X), TY(-camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X), TY(-camera.position.Z - camera.distanceToScreenPlane), 0xffffff);
-                screen.Box(TX(camera.position.X)-1, TY(-camera.position.Z)+1, TX(camera.position.X)+1, TY(-camera.position.Z)-1, 0xffffff);
+                screen.Box(TX(camera.position.X) - 1, TY(-camera.position.Z) + 1, TX(camera.position.X) + 1, TY(-camera.position.Z) - 1, 0xffffff);
 
                 foreach (var item in scene.primitives)
                     if (item is Sphere)
@@ -72,12 +72,12 @@ namespace RayTracer
                     {
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
-                        if (primaryIntersection.nearestPrimitive != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
+                        if (primaryIntersection != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
                             screen.Line(TX(camera.position.X), TY(-camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
                         else
                             screen.Line(TX(camera.position.X), TY(-camera.position.Z), TX(primaryRay.direction.X * 100), TY(-primaryRay.direction.Z * 100), 0xfcba03);
 
-                        if (primaryIntersection.nearestPrimitive != null)
+                        if (primaryIntersection != null)
                         {
                             int lightsCount = scene.lights.Count();
                             Ray shadowRay;
@@ -87,25 +87,31 @@ namespace RayTracer
                             {
                                 light = scene.lights[i];
                                 shadowRay = FindShadowRay(primaryIntersection, light);
-                                shadowIntersection = PrimaryRayIntersection(shadowRay, scene);
+                                shadowIntersection = ShadowRayIntersection(shadowRay, scene);
 
-                                if (shadowIntersection.nearestPrimitive == null)
+                                if (shadowIntersection == null)
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
                                 else
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xff1100);
                             }
 
-                            Ray refractedRay = FindRefractionRay(primaryIntersection, primaryRay);
-                            float refractedR = 1;
-                            if (refractedRay is not null && primaryRay.numberOfBounces < numberOfBouncesAllowed)
-                            {
-                                Vector3 normal = primaryIntersection.normal;
-                                if (Vector3.Dot(normal, primaryRay.direction) > 0)
-                                    normal *= -1;
-                                float tempR = ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity)) * ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity));
-                                refractedR = tempR + (1 - tempR) * (float)(Math.Pow(1 - Vector3.Dot(primaryRay.direction, normal), 5));
-                                screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(refractedRay.origin.X + refractedRay.direction.X * 90), TY(-(refractedRay.origin.Z + refractedRay.direction.Z * 90)), 0x1AAAAA);
-                            }
+                            //Ray refractedRay = FindRefractionRay(primaryIntersection, primaryRay);
+                            //Intersection refractedIntersection = primaryIntersection;
+                            //float refractedR = 1;
+                            //while (refractedRay is not null && refractedRay.numberOfBounces < numberOfBouncesAllowed && refractedIntersection.nearestPrimitive != null)
+                            //{
+                            //    refractedIntersection = PrimaryRayIntersection(refractedRay, scene);
+                            //    if (refractedIntersection != null)
+                            //        refractedIntersection.distance = 90;
+                            //    Vector3 normal = primaryIntersection.normal;
+                            //    if (Vector3.Dot(normal, refractedRay.direction) > 0)
+                            //        normal *= -1;
+                            //    //float tempR = ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity)) * ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity));
+                            //    //refractedR = tempR + (1 - tempR) * (float)(Math.Pow(1 - Vector3.Dot(primaryRay.direction, normal), 5));
+                            //    screen.Line(TX(refractedRay.origin.X), TY(-refractedRay.origin.Z), TX(refractedRay.origin.X + refractedRay.direction.X * refractedIntersection.distance), TY(-(refractedRay.origin.Z + refractedRay.direction.Z * refractedIntersection.distance)), 0x1AAAAA);
+                            //    if (refractedIntersection.nearestPrimitive != null)
+                            //        refractedRay = FindRefractionRay(refractedIntersection, refractedRay);
+                            //}
                         }
                     }
             }
@@ -136,15 +142,22 @@ namespace RayTracer
                             primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
                             primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
 
-                            Vector3 color = Trace(primaryRay, scene);
-                            int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
-                            screen.pixels[x + y * screen.width] = tempColor;
+                            if (primaryIntersection != null && primaryIntersection.distance > 0 && primaryIntersection.distance < 100)
+                            {
+                                Vector3 color = Trace(primaryRay, scene);
+                                int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                                screen.pixels[x + y * screen.width] = tempColor;
+                            }
+                            else
+                            {
+                                screen.pixels[x + y * screen.width] = 0;
+                            }
                         }
                     }
                 }
             }
         }
-        internal Vector3 Trace(Ray ray, Scene scene, int x = 0, int y = 0) //Might Move the things from scene into raytracer for easier code but isn't easier yet so wip
+        internal Vector3 Trace(Ray ray, Scene scene) //Might Move the things from scene into raytracer for easier code but isn't easier yet so wip
         {
             Vector3 color = Vector3.Zero;
 
@@ -358,6 +371,43 @@ namespace RayTracer
             return intersection;
         }
 
+        internal Intersection ShadowRayIntersection(Ray ray, Scene scene)
+        {
+            float distance = 0;
+            Primitive nearestPrimitive = null;
+            Vector3 normal = Vector3.Zero;
+            Vector3 pointOfIntersection = Vector3.Zero;
+            int primitivesCount = scene.primitives.Count;
+            Intersection tempIntersection = null;
+            for (int i = 0; i < primitivesCount; i++)
+            {
+                if (scene.primitives[i] is Plane)
+                {
+                    tempIntersection = collideRayPlane(ray, scene.primitives[i] as Plane);
+                }
+                else if (scene.primitives[i] is Sphere)
+                {
+                    tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
+                    if (!(tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon))
+                        tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
+                }
+                else if (scene.primitives[i] is Triangle)
+                {
+                    tempIntersection = collideRayTriangle(ray, scene.primitives[i] as Triangle);
+                }
+                if (tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon)
+                {
+                    distance = tempIntersection.distance;
+                    nearestPrimitive = scene.primitives[i];
+                    normal = tempIntersection.normal;
+                    pointOfIntersection = tempIntersection.position;
+                }
+            }
+            Intersection intersection = new Intersection(distance, nearestPrimitive, normal, pointOfIntersection);
+
+            return intersection;
+        }
+
         internal Vector3 FindShadowRayColor(Ray ray, Light light, Scene scene)
         {
             int primitivesCount = scene.primitives.Count;
@@ -371,7 +421,7 @@ namespace RayTracer
                 else if (scene.primitives[i] is Sphere)
                 {
                     tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
-                    if (tempIntersection.distance == 0)
+                    if (!(tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon))
                         tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
                 }
                 else if (scene.primitives[i] is Triangle)
@@ -431,6 +481,7 @@ namespace RayTracer
             float length = 0;
             Vector3 pointOfIntersection = Vector3.Zero;
             Vector3 tempNormal = Vector3.Zero;
+            ray.direction.Normalize();
             float a = ray.direction.X * ray.direction.X + ray.direction.Y * ray.direction.Y + ray.direction.Z * ray.direction.Z;
             float b = (2 * (ray.origin.X - primitive.position.X) * ray.direction.X) + (2 * (ray.origin.Y - primitive.position.Y) * ray.direction.Y) + (2 * (ray.origin.Z - primitive.position.Z) * ray.direction.Z);
             float c = (ray.origin.X - primitive.position.X) * (ray.origin.X - primitive.position.X) + (ray.origin.Y - primitive.position.Y) * (ray.origin.Y - primitive.position.Y) + (ray.origin.Z - primitive.position.Z) * (ray.origin.Z - primitive.position.Z) - primitive.radius * primitive.radius;
