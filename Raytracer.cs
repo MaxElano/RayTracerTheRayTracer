@@ -35,7 +35,7 @@ namespace RayTracer
         internal Raytracer(Surface screen)
         {
             scene = new Scene();
-            camera = new Camera(new Vector3(0, 0, 5), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
+            camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
             this.screen = screen;
             map = new Surface("../../../assets/sus.png");
@@ -46,8 +46,8 @@ namespace RayTracer
             {
                 screen.Clear(0x000000);
 
-                screen.Line(TX(camera.leftBottom.X), TY(camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X), TY(camera.position.Z - camera.distanceToScreenPlane), 0xffffff);
-                screen.Box(TX(camera.position.X) - 1, TY(camera.position.Z) - 1, TX(camera.position.X) + 1, TY(camera.position.Z) + 1, 0xffffff);
+                screen.Line(TX(camera.leftBottom.X), TY(-camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X), TY(-camera.position.Z - camera.distanceToScreenPlane), 0xffffff);
+                screen.Box(TX(camera.position.X)-1, TY(-camera.position.Z)+1, TX(camera.position.X)+1, TY(-camera.position.Z)-1, 0xffffff);
 
                 foreach (var item in scene.primitives)
                     if (item is Sphere)
@@ -71,9 +71,9 @@ namespace RayTracer
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
                         if (primaryIntersection != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
-                            screen.Line(TX(camera.position.X), TY(camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
+                            screen.Line(TX(camera.position.X), TY(-camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
                         else
-                            screen.Line(TX(camera.position.X), TY(camera.position.Z), TX(primaryRay.direction.X * 100), TY(-primaryRay.direction.Z * 100), 0xfcba03);
+                            screen.Line(TX(camera.position.X), TY(-camera.position.Z), TX(primaryRay.direction.X * 100), TY(-primaryRay.direction.Z * 100), 0xfcba03);
 
                         if (primaryIntersection != null)
                         {
@@ -85,9 +85,9 @@ namespace RayTracer
                             {
                                 light = scene.lights[i];
                                 shadowRay = FindShadowRay(primaryIntersection, light);
-                                shadowIntersection = ShadowRayIntersection(shadowRay, scene);
+                                shadowIntersection = PrimaryRayIntersection(shadowRay, scene);
 
-                                if (shadowIntersection.position == Vector3.Zero)
+                                if (shadowIntersection == null)
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
                                 else
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xff1100);
@@ -144,11 +144,12 @@ namespace RayTracer
             //-------------Start Searching For Closest Primitive-------------
             int primitivesCount = scene.primitives.Count;
             Intersection intersection = new Intersection(-1, null, Vector3.Zero, Vector3.Zero);
-            Intersection tempIntersection;
+            Intersection tempIntersection, tempIntersection2;
 
             for (int i = 0; i < primitivesCount; i++)
             {
                 tempIntersection = null;
+                tempIntersection2 = null;
                 if (scene.primitives[i] is Plane)
                 {
                     tempIntersection = collideRayPlane(ray, scene.primitives[i] as Plane);
@@ -156,6 +157,8 @@ namespace RayTracer
                 else if (scene.primitives[i] is Sphere)
                 {
                     tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
+                    if (tempIntersection.distance == 0)
+                        tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
                 }
                 else if (scene.primitives[i] is Triangle)
                 {
@@ -310,51 +313,46 @@ namespace RayTracer
             return new Vector3(1f, 1f, 1f) * opacity;
         }
 
-        internal Intersection PrimaryRayIntersection(Ray ray, Scene scene, bool isRefraction = false)
+        internal Intersection PrimaryRayIntersection(Ray ray, Scene scene)
         {
             float distance = 0;
             Primitive nearestPrimitive = null;
             Vector3 normal = Vector3.Zero;
             Vector3 pointOfIntersection = Vector3.Zero;
             int primitivesCount = scene.primitives.Count;
-            bool intersected = false;
             for (int i = 0; i < primitivesCount; i++)
             {
                 Intersection tempIntersection = null;
+                Intersection tempIntersection2 = null;
                 if (scene.primitives[i] is Plane)
                 {
                     tempIntersection = collideRayPlane(ray, scene.primitives[i] as Plane);
                 }
                 else if (scene.primitives[i] is Sphere)
                 {
-                    tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, isRefraction);
+                    tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
+                    if (tempIntersection.distance < Application.epsilon)
+                        tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
                 }
                 else if (scene.primitives[i] is Triangle)
                 {
                     tempIntersection = collideRayTriangle(ray, scene.primitives[i] as Triangle);
                 }
                 if (tempIntersection.nearestPrimitive != null && tempIntersection.distance > Application.epsilon && (tempIntersection.distance < distance - Application.epsilon || distance == 0))
-                {
+                { 
                     distance = tempIntersection.distance;
                     nearestPrimitive = scene.primitives[i];
                     normal = tempIntersection.normal;
                     pointOfIntersection = tempIntersection.position;
-                    intersected = true;
                 }
             }
+            Intersection intersection = new Intersection(distance, nearestPrimitive, normal, pointOfIntersection);
 
-            if (intersected)
-                return new Intersection(distance, nearestPrimitive, normal, pointOfIntersection);
-            else
-                return null;
+            return intersection;
         }
 
-        internal Intersection ShadowRayIntersection(Ray ray, Scene scene)
+        internal Vector3 FindShadowRayColor(Ray ray, Light light, Scene scene)
         {
-            float distance = 0;
-            Primitive nearestPrimitive = null;
-            Vector3 normal = Vector3.Zero;
-            Vector3 pointOfIntersection = Vector3.Zero;
             int primitivesCount = scene.primitives.Count;
             Intersection tempIntersection = null;
             for (int i = 0; i < primitivesCount; i++)
@@ -366,7 +364,7 @@ namespace RayTracer
                 else if (scene.primitives[i] is Sphere)
                 {
                     tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
-                    if (!(tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon))
+                    if (tempIntersection.distance == 0)
                         tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
                 }
                 else if (scene.primitives[i] is Triangle)
@@ -466,14 +464,14 @@ namespace RayTracer
 
             float t = 0;
             float d = b * b - 4 * a * c;
-            if (d >= 0 && a != 0) //If there are solutions
+            if (d >= 0 && a >= 0) //If there are solutions
             {
                 if (!secondaryCollision)
                     t = (float)((-b - Math.Sqrt(d)) / (2 * a));
                 else
                     t = (float)((-b + Math.Sqrt(d)) / (2 * a));
 
-                if (t >= 0)
+                if (t > 0)
                 {
                     pointOfIntersection = ray.origin + ray.direction * t;
                     length = (ray.direction * t).Length;
@@ -528,12 +526,12 @@ namespace RayTracer
         }
         private int TX(float X)
         {
-            return (int)(-X * 60 + screen.width / 2);
+            return (int)((-X+camera.position.X) * 60 + screen.width / 2);
         }
 
         private int TY(float Z)
         {
-            return (int)(Z * 60 + screen.height * 0.9f);
+            return (int)((Z+camera.position.Z) * 60 + screen.height * 0.9f);
         }
     }
 }

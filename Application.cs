@@ -28,11 +28,11 @@ namespace RayTracer
 
             if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt])
             {
-                //raytracer.camera.position = Vector3.Zero;
-                //raytracer.camera.lookAtDirection = new Vector3(0, 0, 1);
-                //raytracer.camera.rightDirection = new Vector3(-1, 0, 0);
-                //raytracer.camera.upDirection = new Vector3(0, 1, 0);
-                //raytracer.camera.SetScreenPlaneCorners();
+
+                raytracer.camera.lookAtDirection = new Vector3(0, 0, 1);
+                raytracer.camera.rightDirection = new Vector3(-1, 0, 0);
+                raytracer.camera.upDirection = new Vector3(0, 1, 0);
+                raytracer.camera.SetScreenPlaneCorners();
                 raytracer.debugMode = true;
             }
 
@@ -44,7 +44,6 @@ namespace RayTracer
 
                 raytracer.camera.screen.Print(raytracer.camera.fov.ToString(), raytracer.camera.screen.width / 25, raytracer.camera.screen.height / 25, 0xffffff);
             }
-
         }
 
         private void KeyboardInput()

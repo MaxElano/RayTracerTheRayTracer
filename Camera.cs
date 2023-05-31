@@ -22,6 +22,7 @@ namespace RayTracer
         internal Vector3 rightDirection;
         internal float distanceToScreenPlane; 
         internal Vector3 screenPlaneCenter;
+        
 
         public Vector3 leftTop;
         public Vector3 rightTop;
