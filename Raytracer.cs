@@ -37,7 +37,7 @@ namespace RayTracer
         internal Raytracer(Surface screen)
         {
             scene = new Scene();
-            camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
+            camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1.5f, screen);
             debugMode = false;
             this.screen = screen;
             map = new Surface("../../../assets/sus.png");
@@ -72,7 +72,7 @@ namespace RayTracer
                     {
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
-                        if (primaryIntersection != null /*&& primaryIntersection.nearestPrimitive is Sphere*/)
+                        if (primaryIntersection != null && primaryIntersection.nearestPrimitive is Sphere)
                             screen.Line(TX(camera.position.X), TY(-camera.position.Z), TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), 0xfcba03);
                         else
                             screen.Line(TX(camera.position.X), TY(-camera.position.Z), TX(primaryRay.direction.X * 100), TY(-primaryRay.direction.Z * 100), 0xfcba03);
@@ -95,23 +95,23 @@ namespace RayTracer
                                     screen.Line(TX(primaryIntersection.position.X), TY(-primaryIntersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xff1100);
                             }
 
-                            //Ray refractedRay = FindRefractionRay(primaryIntersection, primaryRay);
-                            //Intersection refractedIntersection = primaryIntersection;
-                            //float refractedR = 1;
-                            //while (refractedRay is not null && refractedRay.numberOfBounces < numberOfBouncesAllowed && refractedIntersection.nearestPrimitive != null)
-                            //{
-                            //    refractedIntersection = PrimaryRayIntersection(refractedRay, scene);
-                            //    if (refractedIntersection != null)
-                            //        refractedIntersection.distance = 90;
-                            //    Vector3 normal = primaryIntersection.normal;
-                            //    if (Vector3.Dot(normal, refractedRay.direction) > 0)
-                            //        normal *= -1;
-                            //    //float tempR = ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity)) * ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity));
-                            //    //refractedR = tempR + (1 - tempR) * (float)(Math.Pow(1 - Vector3.Dot(primaryRay.direction, normal), 5));
-                            //    screen.Line(TX(refractedRay.origin.X), TY(-refractedRay.origin.Z), TX(refractedRay.origin.X + refractedRay.direction.X * refractedIntersection.distance), TY(-(refractedRay.origin.Z + refractedRay.direction.Z * refractedIntersection.distance)), 0x1AAAAA);
-                            //    if (refractedIntersection.nearestPrimitive != null)
-                            //        refractedRay = FindRefractionRay(refractedIntersection, refractedRay);
-                            //}
+                            Ray refractedRay = FindRefractionRay(primaryIntersection, primaryRay);
+                            Intersection refractedIntersection = primaryIntersection;
+                            float refractedR = 1;
+                            while (refractedRay is not null && refractedRay.numberOfBounces < numberOfBouncesAllowed && refractedIntersection.nearestPrimitive != null)
+                            {
+                                refractedIntersection = PrimaryRayIntersection(refractedRay, scene);
+                                if (refractedIntersection != null)
+                                    refractedIntersection.distance = 90;
+                                Vector3 normal = primaryIntersection.normal;
+                                if (Vector3.Dot(normal, refractedRay.direction) > 0)
+                                    normal *= -1;
+                                //float tempR = ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity)) * ((primaryIntersection.nearestPrimitive.opticalDensity - primaryRay.opticalDensity) / (primaryIntersection.nearestPrimitive.opticalDensity + primaryRay.opticalDensity));
+                                //refractedR = tempR + (1 - tempR) * (float)(Math.Pow(1 - Vector3.Dot(primaryRay.direction, normal), 5));
+                                screen.Line(TX(refractedRay.origin.X), TY(-refractedRay.origin.Z), TX(refractedRay.origin.X + refractedRay.direction.X * refractedIntersection.distance), TY(-(refractedRay.origin.Z + refractedRay.direction.Z * refractedIntersection.distance)), 0x1AAAAA);
+                                if (refractedIntersection.nearestPrimitive != null)
+                                    refractedRay = FindRefractionRay(refractedIntersection, refractedRay);
+                            }
                         }
                     }
             }

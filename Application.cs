@@ -12,7 +12,9 @@ namespace RayTracer
         KeyboardState keyboard;
         MouseState mouse;
         Camera camera;
+        Primitive target;
         static internal float epsilon = 0.0001f;
+        private int targetCounter;
 
         internal Application(Surface screen, KeyboardState keyboard, MouseState mouse)
         {
@@ -22,6 +24,7 @@ namespace RayTracer
             camera = raytracer.camera;
             camera.yaw = 180f;
             camera.pitch = 0f;
+            targetCounter = 0;
         }
         internal void Update()
         {
@@ -41,7 +44,8 @@ namespace RayTracer
                 KeyboardInput();
                 MouseInput();
 
-                camera.screen.Print(camera.fov.ToString(), camera.screen.width / 25, camera.screen.height / 25, 0xffffff);
+                camera.fov = camera.CalculateFOV(camera.resolution, camera.distanceToScreenPlane);
+                camera.screen.Print(((int)camera.fov).ToString(), camera.screen.width / 25, camera.screen.height / 25, 0xffffff);
             }
         }
 
@@ -112,9 +116,30 @@ namespace RayTracer
                 camera.SetUpDirection();
             }
 
-            if (keyboard[Keys.T])
+            if (keyboard[Keys.P])
             {
-                camera.LookAt(raytracer.scene.primitives[1]);
+                if (targetCounter < raytracer.scene.primitives.Count - 1)
+                    targetCounter++;
+                else
+                    targetCounter = 0;
+                
+                target = raytracer.scene.primitives[targetCounter]; 
+                camera.LookAt(target);
+            }
+            else if (keyboard[Keys.O])
+            {
+                if (targetCounter > 0)
+                    targetCounter--;
+                else
+                    targetCounter = raytracer.scene.primitives.Count - 1;
+
+                target = raytracer.scene.primitives[targetCounter];
+                camera.LookAt(target);
+            }
+
+            if (keyboard[Keys.Space])
+            {
+                camera.LookAt(target);
             }
 
             camera.SetScreenPlaneCorners();
@@ -122,11 +147,11 @@ namespace RayTracer
 
         private void MouseInput()
         {
-            if (mouse.ScrollDelta.Y > 0 && camera.fov < 180)
-                camera.fov += mouse.ScrollDelta.Y * 3f;
-            if (mouse.ScrollDelta.Y < 0 && camera.fov > 1)
-                camera.fov += mouse.ScrollDelta.Y * 3f;
-            camera.fov = Math.Clamp(camera.fov, 1, 180);
+            if (mouse.ScrollDelta.Y > 0 && camera.fov > 2)
+                camera.SetFOV(camera.resolution, camera.fov-=3);
+            if (mouse.ScrollDelta.Y < 0 && camera.fov < 88)
+                camera.SetFOV(camera.resolution, camera.fov+=3);
+
             camera.SetScreenPlaneCorners();
         }
     }

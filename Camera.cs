@@ -29,7 +29,7 @@ namespace RayTracer
         public Vector3 leftBottom;
         public Vector3 rightBottom;
 
-        float resolution;
+        internal float resolution;
         internal float fov, pitch, yaw;
 
         internal Surface screen;
@@ -46,14 +46,13 @@ namespace RayTracer
             screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
 
             resolution = (float)screen.width / (float)screen.height;
-            fov = 45;
 
             SetScreenPlaneCorners();
         }
 
         internal void SetScreenPlaneCorners()
         {
-            screenPlaneCenter = position + (distanceToScreenPlane * (fov/45)) * lookAtDirection;
+            screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
             leftTop = screenPlaneCenter + upDirection - resolution * rightDirection;
             rightTop = screenPlaneCenter + upDirection + resolution * rightDirection;
             leftBottom = screenPlaneCenter - upDirection - resolution * rightDirection;
@@ -91,9 +90,18 @@ namespace RayTracer
             if (target is Sphere)
             {
                 var sphere = (Sphere)target;
-                pitch = pitch;
-                yaw = yaw;
                 lookAtDirection = new Vector3(position.X - sphere.position.X, sphere.position.Y - position.Y, sphere.position.Z - position.Z);
+            }
+            else if (target is Plane)
+            {
+                var plane = (Plane)target;
+                lookAtDirection = new Vector3(position.X - plane.distanceToOrigin.X, plane.distanceToOrigin.Y - position.Y, plane.distanceToOrigin.Z - position.Z);
+            }
+            else if (target is Triangle)
+            {
+                var triangle = (Triangle)target;
+                Vector3 triangleCenter = (triangle.pointA + triangle.pointB + triangle.pointC) / 3;
+                lookAtDirection = new Vector3(position.X - triangleCenter.X, triangleCenter.Y - position.Y, triangleCenter.Z - position.Z);
             }
             lookAtDirection.Normalize();
             CalculateNewPitchYaw();
@@ -109,6 +117,18 @@ namespace RayTracer
             double tempX = lookAtDirection.X / Math.Cos(MathHelper.DegreesToRadians(pitch));
             double tempZ = lookAtDirection.Z / Math.Cos(MathHelper.DegreesToRadians(pitch));
             yaw = (float)MathHelper.RadiansToDegrees(Math.Atan2(tempX, tempZ)) + 180f;
+        }
+
+        internal void SetFOV(float halfPlane, float angle)
+        {
+            distanceToScreenPlane = halfPlane / (float)Math.Tan(MathHelper.DegreesToRadians(angle));
+            fov = CalculateFOV(resolution, distanceToScreenPlane);
+
+        }
+
+        internal float CalculateFOV(float halfPlane, float disPlane)
+        {
+            return (float)MathHelper.RadiansToDegrees(Math.Atan(halfPlane / disPlane));
         }
     }
 }
