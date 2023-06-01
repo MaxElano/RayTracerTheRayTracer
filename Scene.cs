@@ -21,12 +21,18 @@ namespace RayTracer
             lights = new List<Light>();
 
             primitives.Add(new TexturedPlane(new Vector3(0,1,0), new Vector3(0, -2, 0), new Vector3(0.6f,0.6f,0.6f), new Vector3(0.8f,0.8f,0.8f)));
-            //primitives.Add(new Plane(new Vector3(0,0,1), new Vector3(0, 0, 2), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
+            
+            //primitives.Add(new Plane(new Vector3(0,0,1), new Vector3(0, 0, 2), new Vector3(0.2f,0.2f,0.2f), new Vector3(0,0,0)));
 
             //primitives.Add(new Sphere(new Vector3(0, 0, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-            primitives.Add(new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0 ,Primitive.Materials.plastic));
-            primitives.Add(new Sphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
+            primitives.Add(new Sphere(new Vector3(2.5f, 0, 6.5f), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
+
+            primitives.Add(new Sphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f), 0, Primitive.Materials.window_glass));
             //primitives.Add(new TexturedTriangle(new Vector3(-2, 0, 2), new Vector3(2, 0, 2), new Vector3(0, 5, 2), new Vector3(1, 1, 1), new Vector3(1, 1, 1)));
+
+            Sphere window = new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0, Primitive.Materials.window_glass);
+            window.specularColor = new Vector3(0.2f, 0.2f, 0.2f);
+            primitives.Add(window);
 
             Sphere mirror = new Sphere(new Vector3(2.5f, 2.5f, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0.1f);
             mirror.specularColor = new Vector3(0.7f, 0.7f, 0.7f);
