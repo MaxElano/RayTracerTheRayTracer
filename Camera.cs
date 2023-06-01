@@ -139,7 +139,6 @@ namespace RayTracer
         {
             distanceToScreenPlane = halfPlane / (float)Math.Tan(MathHelper.DegreesToRadians(angle));
             fov = CalculateFOV(resolution, distanceToScreenPlane);
-
         }
 
         internal float CalculateFOV(float halfPlane, float disPlane)
