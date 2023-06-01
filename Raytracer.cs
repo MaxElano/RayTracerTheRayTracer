@@ -30,7 +30,7 @@ namespace RayTracer
 
         Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
 
-        bool showBackground = true;
+        bool showBackground = false;
 
         //-------Debugging------
         bool showPrimaryRays = true;
@@ -97,6 +97,7 @@ namespace RayTracer
                         {
                             screen.pixels[x + y * screen.width] = 0;
                             Ray primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
+                            Intersection primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
                             Vector3 color;
 
                             if (primaryIntersection != null)
