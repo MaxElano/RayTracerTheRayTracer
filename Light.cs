@@ -23,16 +23,21 @@ namespace RayTracer
     internal class Spotlight : Light
     {
         Vector3 shineAtDirection;
-        float angle;
+        double angle;
         internal Spotlight(Vector3 position, Vector3 rgbIntensity, Vector3 shineAtDirection, float angle) : base(position, rgbIntensity)
         {
             this.shineAtDirection = shineAtDirection;
+            shineAtDirection.Normalize();
             this.angle = angle;
         }
 
-        //internal bool DoesItHit(Ray ray)
-        //{
-        //    Vector3.Dot(shineAtDirection, ray.direction);
-        //}
+        internal bool DoesItHit(Ray ray)
+        {
+            double incomingAngle = MathHelper.RadiansToDegrees(Math.Acos(Math.Abs(Vector3.Dot(shineAtDirection, ray.direction))));
+            if (incomingAngle <= angle)
+                return true;
+            else
+                return false;
+        }
     }
 }
