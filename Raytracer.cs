@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-
 using System.Text;
 using System.Threading.Tasks;
 using static OpenTK.Graphics.OpenGL.GL;
@@ -21,7 +20,7 @@ namespace RayTracer
     {
         internal Scene scene;
         internal Camera camera;
-        Surface screen, map;
+        Surface screen, map, background;
 
         int tempint = 0;
         Ray primaryRay;
@@ -30,7 +29,9 @@ namespace RayTracer
         int numberOfBouncesAllowed = 5;
 
         Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
-        
+
+        bool showBackground = true;
+
         //-------Debugging------
         bool showPrimaryRays = true;
         bool showShadowRays = true;
@@ -49,6 +50,7 @@ namespace RayTracer
             debugMode = false;
             this.screen = screen;
             map = new Surface("../../../assets/sus.png");
+            background = new Surface("../../../assets/coin.png");
         }
         internal void Render()
         {
@@ -96,9 +98,24 @@ namespace RayTracer
                             screen.pixels[x + y * screen.width] = 0;
                             Ray primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
                             Vector3 color;
-                            color = Trace(primaryRay, scene);
-                            int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
-                            screen.pixels[x + y * screen.width] = tempColor;
+
+                            if (primaryIntersection != null)
+                            {
+                                color = Trace(primaryRay, scene);
+                                int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                                screen.pixels[x + y * screen.width] = tempColor;
+                            }
+                            else
+                            {
+                                if (showBackground)
+                                {
+                                    color = Background(primaryRay.direction);
+                                    int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                                    screen.pixels[x + y * screen.width] = tempColor;
+                                }
+                                else
+                                    screen.pixels[x + y * screen.width] = 0;
+                            }
                         });
                     });
                 }
@@ -120,7 +137,14 @@ namespace RayTracer
                             }
                             else
                             {
-                                screen.pixels[x + y * screen.width] = 0;
+                                if (showBackground)
+                                {
+                                    Vector3 color = Background(primaryRay.direction);
+                                    int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                                    screen.pixels[x + y * screen.width] = tempColor;
+                                }
+                                else
+                                    screen.pixels[x + y * screen.width] = 0;
                             }
                         }
                     }
@@ -182,7 +206,7 @@ namespace RayTracer
                     if (refractedRay is not null && refractedRay.numberOfBounces < numberOfBouncesAllowed)
                     {
                         Vector3 normal = intersection.normal;
-                        if (Vector3.Dot(normal, ray.direction) > 0)
+                        if (Vector3.Dot(normal, ray.direction) < 0)
                         {
                             normal *= -1;
                         }
@@ -406,7 +430,10 @@ namespace RayTracer
             }
             else
             {
-                return Vector3.Zero;
+                if(showBackground)
+                    return Background(ray.direction);
+                else
+                    return Vector3.Zero;
             }
         }
 
@@ -627,7 +654,7 @@ namespace RayTracer
             Vector3 n = intersection.normal;
             float pOD = ray.opticalDensity; //Previous Optical Density
             float nOD = intersection.nearestPrimitive.opticalDensity; //Next Optical Density
-            if (Vector3.Dot(n, d) > 0) //Moving out of a sphere
+            if (Vector3.Dot(n, d) < 0) //Moving out of a sphere
             {
                 n *= -1;
                 nOD = scene.sceneOpticalDensity;
@@ -655,6 +682,26 @@ namespace RayTracer
             return (int)((Z+camera.position.Z) * 60 + screen.height * 0.9f);
         }
 
+        internal Vector3 Background(Vector3 direction)
+        {
+            //https://stackoverflow.com/questions/66986002/convert-3d-angle-vector-not-position-to-2-angles-angle-pitch
+            double theta = MathHelper.RadiansToDegrees(Math.Atan(direction.Y / direction.X)) + 90;
+            double phi = MathHelper.RadiansToDegrees(Math.Atan2(-direction.Z, Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y))) + 90;
 
+            //ψ = atan(ny / nx)
+            //φ = atan2(-nz, sqrt(nx ^ 2 + ny ^ 2))
+
+            float scaleX = background.width / 180f;
+            float scaleY = background.height / 180f;
+
+            int u = (int)(phi * scaleX);
+            int v = (int)(theta * scaleY);
+
+            //float opacity = ((float)(background.pixels[(int)u + (int)v * 255] & 255)) / 256;
+
+            //int intColor = background.pixels[(int)u + (int)v * 255];
+            //return new Vector3((intColor >> 16) / 255, (intColor >> 8) / 255, intColor / 255);
+            return Vector3.Zero;
+        }
     }
 }
