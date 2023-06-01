@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.ColorSpaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace RayTracer
             debugMode = false;
             this.screen = screen;
             map = new Surface("../../../assets/sus.png");
-            background = new Surface("../../../assets/sus.png");
+            background = new Surface("../../../assets/skybox.png");
         }
         internal void Render()
         {
@@ -683,23 +684,12 @@ namespace RayTracer
 
         internal Vector3 Background(Vector3 direction)
         {
-            double theta = 0;
-            double phi = 0;
+            double theta = 1;
+            double phi = 1;
             if (direction.Z != 0)
                 theta = MathHelper.RadiansToDegrees(Math.Atan(direction.X / direction.Z));
             if(direction.Z != 0)
                 phi = MathHelper.RadiansToDegrees(Math.Atan(direction.Y / direction.Z));
-
-            if (theta >= 90 || theta <= -90)
-            {
-                double diff = theta - 90 * (theta / Math.Abs(theta));
-                theta = theta - 2 * diff;
-            }
-            if (phi >= 90 || phi <= -90)
-            {
-                double diff = phi - 90 * (phi / Math.Abs(phi));
-                phi = phi - 2 * diff;
-            }
 
             if(direction.Z > 0)
             {
@@ -713,10 +703,12 @@ namespace RayTracer
             int v = Math.Clamp((int)((phi + 90) * scaleY), 0, background.height - 1);
 
             int intColor = background.pixels[(int)u + (int)v * background.width];
-            intColor -= (intColor >> 24);
-            float red = Math.Abs(((intColor >> 0) % 255) / 255f);
-            float green = Math.Abs(((intColor >> 8) % 255) / 255f);
-            float blue = Math.Abs(((intColor >> 16) % 255) / 255f);
+
+            Color color = Color.FromArgb(intColor);   //https://stackoverflow.com/a/6131464
+
+            float red = color.R / 255f;
+            float green = color.G / 255f;
+            float blue = color.B / 255f;
             return new Vector3(red, green, blue);
         }
     }

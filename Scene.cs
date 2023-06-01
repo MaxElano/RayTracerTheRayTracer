@@ -41,7 +41,7 @@ namespace RayTracer
             primitives.Add(new TexturedSphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
 
             lights.Add(new Light(new Vector3(4, 0, -1), new Vector3(10, 10, 10)));
-            lights.Add(new Spotlight(new Vector3(0, 10, 4.5f), new Vector3(50, 50, 50), new Vector3(0, -1, 0), 15f));
+            //lights.Add(new Spotlight(new Vector3(0, 10, 4.5f), new Vector3(50, 50, 50), new Vector3(0, -1, 0), 15f));
         }
     }
 }
