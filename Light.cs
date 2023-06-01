@@ -19,4 +19,20 @@ namespace RayTracer
             this.rgbIntensity = rgbIntensity;
         }
     }
+
+    internal class Spotlight : Light
+    {
+        Vector3 shineAtDirection;
+        float angle;
+        internal Spotlight(Vector3 position, Vector3 rgbIntensity, Vector3 shineAtDirection, float angle) : base(position, rgbIntensity)
+        {
+            this.shineAtDirection = shineAtDirection;
+            this.angle = angle;
+        }
+
+        //internal bool DoesItHit(Ray ray)
+        //{
+        //    Vector3.Dot(shineAtDirection, ray.direction);
+        //}
+    }
 }

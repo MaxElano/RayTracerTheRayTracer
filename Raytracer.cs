@@ -31,9 +31,12 @@ namespace RayTracer
 
         int numberOfBouncesAllowed = 5;
 
+        Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
+
+
         //-------Multi Threading------
         internal static object lockObject = new object();
-        internal bool debugMode, multiThreading = true;
+        internal bool debugMode, multiThreading = false;
 
         internal Raytracer(Surface screen)
         {
@@ -69,7 +72,7 @@ namespace RayTracer
                     }
 
                 for (int x = 0; x < screen.width; x++)
-                    if (x % 50 == 0 || x == 0)
+                    if (x % 80 == 0 || x == 0)
                     {
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         DebugTrace(primaryRay, scene, 0xfcba03);
@@ -187,10 +190,11 @@ namespace RayTracer
                     if (refractedRay is not null && refractedRay.numberOfBounces < numberOfBouncesAllowed)
                     {
                         Vector3 normal = intersection.normal;
-                        if (Vector3.Dot(ray.direction, normal) < 0)
+                        if (Vector3.Dot(normal, ray.direction) > 0)
                         {
                             normal *= -1;
                         }
+                        screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(intersection.position.X + normal.X * 0.5f), TY(-(intersection.position.Z + normal.Z * 0.5f)), 0x326633);
 
                         Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, normal) * normal;
                         reflectedVector.Normalize();
@@ -248,6 +252,7 @@ namespace RayTracer
             //-------------Ray Hit Something So Do...-------------
             if (intersection != null)
             {
+                ray.intersectionDistance = Math.Abs((intersection.position - ray.origin).Length);
                 //----Textures----
                 Vector3 materialColor = intersection.nearestPrimitive.materialColor;
                 if (intersection.nearestPrimitive is TexturedSphere)
@@ -292,6 +297,8 @@ namespace RayTracer
                     materialColor = CheckboardPattern(u, v, 4);
                 }
 
+                Vector3 materialsAmbientColor = materialColor;
+
                 //----Pure Specular----
                 if (intersection.nearestPrimitive.specularity == 1)
                 {
@@ -300,7 +307,8 @@ namespace RayTracer
                         Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
                         reflectedVector.Normalize();
                         Ray reflectedRay = new Ray(intersection.position, reflectedVector, 0, ray.numberOfBounces + 1);
-                        color += materialColor * Trace(reflectedRay, scene);
+                        color += materialsAmbientColor * ambientLightRadiance + materialColor * Trace(reflectedRay, scene) ;
+                        return color;
                     }
                 }
                 //----Refraction----
@@ -311,7 +319,7 @@ namespace RayTracer
                     if (refractedRay is not null && refractedRay.numberOfBounces < numberOfBouncesAllowed)
                     {
                         Vector3 normal = intersection.normal;
-                        if (Vector3.Dot(normal, ray.direction) > 0)
+                        if (Vector3.Dot(normal, ray.direction) < 0)
                         {
                             normal *= -1;
                         }
@@ -370,8 +378,7 @@ namespace RayTracer
                         }
                     }
 
-                    Vector3 materialsAmbientColor = materialColor;
-                    Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
+                    
 
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
@@ -619,6 +626,7 @@ namespace RayTracer
             if(sqrt >= 0)
             {
                 Vector3 t = (pOD / nOD) * (d + cosT * n) - (float)Math.Sqrt(sqrt) * n;
+                t.Normalize();
                 return new Ray(intersection.position, t, 0, ray.numberOfBounces + 1, nOD);
             }
             else //Doesn't refract
