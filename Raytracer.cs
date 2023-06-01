@@ -30,7 +30,7 @@ namespace RayTracer
 
         Vector3 ambientLightRadiance = new Vector3(0.05f, 0.05f, 0.05f);
 
-        bool showBackground = false;
+        bool showBackground = true;
 
         //-------Debugging------
         bool showPrimaryRays = true;
@@ -50,7 +50,7 @@ namespace RayTracer
             debugMode = false;
             this.screen = screen;
             map = new Surface("../../../assets/sus.png");
-            background = new Surface("../../../assets/coin.png");
+            background = new Surface("../../../assets/sus.png");
         }
         internal void Render()
         {
@@ -683,24 +683,41 @@ namespace RayTracer
 
         internal Vector3 Background(Vector3 direction)
         {
-            //https://stackoverflow.com/questions/66986002/convert-3d-angle-vector-not-position-to-2-angles-angle-pitch
-            double theta = MathHelper.RadiansToDegrees(Math.Atan(direction.Y / direction.X)) + 90;
-            double phi = MathHelper.RadiansToDegrees(Math.Atan2(-direction.Z, Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y))) + 90;
+            double theta = 0;
+            double phi = 0;
+            if (direction.Z != 0)
+                theta = MathHelper.RadiansToDegrees(Math.Atan(direction.X / direction.Z));
+            if(direction.Z != 0)
+                phi = MathHelper.RadiansToDegrees(Math.Atan(direction.Y / direction.Z));
 
-            //ψ = atan(ny / nx)
-            //φ = atan2(-nz, sqrt(nx ^ 2 + ny ^ 2))
+            if (theta >= 90 || theta <= -90)
+            {
+                double diff = theta - 90 * (theta / Math.Abs(theta));
+                theta = theta - 2 * diff;
+            }
+            if (phi >= 90 || phi <= -90)
+            {
+                double diff = phi - 90 * (phi / Math.Abs(phi));
+                phi = phi - 2 * diff;
+            }
+
+            if(direction.Z > 0)
+            {
+                phi *= -1;
+            }
 
             float scaleX = background.width / 180f;
             float scaleY = background.height / 180f;
 
-            int u = (int)(phi * scaleX);
-            int v = (int)(theta * scaleY);
+            int u = Math.Clamp((int)((theta + 90) * scaleX), 0, background.width - 1);
+            int v = Math.Clamp((int)((phi + 90) * scaleY), 0, background.height - 1);
 
-            //float opacity = ((float)(background.pixels[(int)u + (int)v * 255] & 255)) / 256;
-
-            //int intColor = background.pixels[(int)u + (int)v * 255];
-            //return new Vector3((intColor >> 16) / 255, (intColor >> 8) / 255, intColor / 255);
-            return Vector3.Zero;
+            int intColor = background.pixels[(int)u + (int)v * background.width];
+            intColor -= (intColor >> 24);
+            float red = Math.Abs(((intColor >> 0) % 255) / 255f);
+            float green = Math.Abs(((intColor >> 8) % 255) / 255f);
+            float blue = Math.Abs(((intColor >> 16) % 255) / 255f);
+            return new Vector3(red, green, blue);
         }
     }
 }
