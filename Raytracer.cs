@@ -307,22 +307,21 @@ namespace RayTracer
                     double vC = 1;
 
 
-                    double uP = triangle.alpha * uA + triangle.beta * uB + triangle.gamma * uC;
-                    double vP = triangle.alpha * vA + triangle.beta * vB + triangle.gamma * vC;
+                    double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
+                    double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
 
                     materialColor = CheckboardPattern(uP, vP, 32);
                 }
                 else if (intersection.nearestPrimitive is TexturedPlane)
                 {
                     var plane = (TexturedPlane)intersection.nearestPrimitive;
-                    Vector3 vectorU = new Vector3(-1, 0, 0);
-                    Vector3 vectorV = Vector3.Normalize(Vector3.Cross(Vector3.Normalize(plane.normal), Vector3.Normalize(vectorU)));
-                    Double u = intersection.position.X / vectorU.X;
-                    Double v = intersection.position.Z / vectorV.Z;
-                    int uInt = (int)u;
-                    int vInt = (int)v;
-                    u = u - uInt;
-                    v = v - vInt;
+                    Vector3 n = new Vector3(1, 0, 0);
+                    Vector3 vectorU = n - (Vector3.Dot(n, plane.normal) * plane.normal);
+                    vectorU = Vector3.Normalize(vectorU);
+                    Vector3 vectorV = Vector3.Cross(plane.normal, vectorU);
+
+                    float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
+                    float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
 
                     materialColor = CheckboardPattern(u, v, 4);
                 }
