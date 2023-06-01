@@ -116,7 +116,9 @@ namespace RayTracer
     {
         internal TexturedPlane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(normal,distanceToOrigin,materialColor,speculalColor, specularity, material)
         {
-
+            base.normal = normal;
+            base.normal.Normalize();
+            base.distanceToOrigin = distanceToOrigin;
         }
     }
 } 
