@@ -23,4 +23,21 @@ namespace RayTracer
             this.position = position;
         }
     }
+
+    internal class TriangleIntersection : Intersection
+    {
+        internal float alpha;
+        internal float beta;
+        internal float gamma;
+        internal TriangleIntersection(float distance, Primitive nearestPrimitive, Vector3 normal, Vector3 position, float alpha, float beta, float gamma) : base(distance, nearestPrimitive, normal, position)
+        {
+            base.distance = distance;
+            base.nearestPrimitive = nearestPrimitive;
+            base.normal = normal;
+            base.position = position;
+            this.alpha = alpha;
+            this.beta = beta;
+            this.gamma = gamma;
+        }
+    }
 }

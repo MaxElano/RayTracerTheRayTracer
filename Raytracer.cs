@@ -301,10 +301,10 @@ namespace RayTracer
                     color += (1 - refractedR) * Trace(refractedRay, scene);
                 }
 
-                //if (intersection.nearestPrimitive is Triangle)
-                //{
-                //    color = new Vector3(color.X * (intersection.nearestPrimitive as Triangle).alpha, color.Y * (intersection.nearestPrimitive as Triangle).beta, color.Z * (intersection.nearestPrimitive as Triangle).gamma);
-                //}
+                if (intersection.nearestPrimitive is Triangle)
+                {
+                    color = new Vector3(color.X * ((TriangleIntersection)intersection).alpha, color.Y * ((TriangleIntersection)intersection).beta, color.Z * ((TriangleIntersection)intersection).gamma);
+                }
 
 
                 return color;
@@ -435,6 +435,7 @@ namespace RayTracer
             }
             return light.rgbIntensity;
         }
+
         internal Intersection collideRayTriangle(Ray ray, Triangle primitive)
         {
             Intersection tempIntersection = collideRayPlane(ray, new Plane(primitive.normal, primitive.pointA, primitive.materialColor, primitive.speculalColor, primitive.specularity));
@@ -447,11 +448,8 @@ namespace RayTracer
 
                 if (0 <= alpha && alpha <= 1 && 0 <= beta && beta <= 1 && 0 <= gamma && gamma <= 1) //Point is inside triangle
                 {
-                    primitive.alpha = alpha;
-                    primitive.beta = beta;
-                    primitive.gamma = gamma;
                     float length = (tempIntersection.position - ray.origin).Length;
-                    return new Intersection(length, primitive, primitive.normal, tempIntersection.position);
+                    return new TriangleIntersection(length, primitive, primitive.normal, tempIntersection.position, alpha, beta, gamma);
                 }
                 else //Point is not in triangle
                 {

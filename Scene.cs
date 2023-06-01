@@ -24,14 +24,14 @@ namespace RayTracer
             //primitives.Add(new Plane(new Vector3(0,0,1), new Vector3(0, 0, 2), new Vector3(0.2f,0.2f,0.2f), new Vector3(0.2f,0.2f,0.2f)));
 
             primitives.Add(new Sphere(new Vector3(0, -1, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-            primitives.Add(new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0 ,Primitive.Materials.plastic));
+            //primitives.Add(new Sphere(new Vector3(2.5f, 0, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0 ,Primitive.Materials.plastic));
             //primitives.Add(new Sphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(0, 0, 1), new Vector3(0.8f, 0.8f, 0.8f)));
             primitives.Add(new Triangle(new Vector3(-2, 0, 2), new Vector3(2, 0, 2), new Vector3(0, 5, 2), new Vector3(1, 1, 1), new Vector3(1, 1, 1)));
 
             //Sphere mirror = new Sphere(new Vector3(2.5f, 2.5f, 4), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0.1f);
             //mirror.specularColor = new Vector3(0.7f, 0.7f, 0.7f);
             //primitives.Add(mirror);
-            primitives.Add(new TexturedSphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
+            //primitives.Add(new TexturedSphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
 
             lights.Add(new Light(new Vector3(0, 3, 0), new Vector3(10, 10, 10)));
 

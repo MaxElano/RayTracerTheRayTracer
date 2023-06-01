@@ -95,7 +95,8 @@ namespace RayTracer
             else if (target is Plane)
             {
                 var plane = (Plane)target;
-                lookAtDirection = new Vector3(position.X - plane.distanceToOrigin.X, plane.distanceToOrigin.Y - position.Y, plane.distanceToOrigin.Z - position.Z);
+                Vector3 nearestPoint = FindNearestPoint(plane);
+                lookAtDirection = new Vector3(position.X - nearestPoint.X, nearestPoint.Y - position.Y, nearestPoint.Z - position.Z);
             }
             else if (target is Triangle)
             {
@@ -117,6 +118,21 @@ namespace RayTracer
             double tempX = lookAtDirection.X / Math.Cos(MathHelper.DegreesToRadians(pitch));
             double tempZ = lookAtDirection.Z / Math.Cos(MathHelper.DegreesToRadians(pitch));
             yaw = (float)MathHelper.RadiansToDegrees(Math.Atan2(tempX, tempZ)) + 180f;
+        }
+
+        internal Vector3 FindNearestPoint(Plane plane)
+        {
+            Vector3 normalizedVector = plane.normal.Normalized();
+            float divider = normalizedVector.X * plane.normal.X + normalizedVector.Y * plane.normal.Y + normalizedVector.Z * plane.normal.Z;
+            float n = plane.normal.X * position.X + plane.normal.Y * position.Y + plane.normal.Z * position.Z;
+            float D = -(plane.normal.X * plane.distanceToOrigin.X + plane.normal.Y * plane.distanceToOrigin.Y + plane.normal.Z *  plane.distanceToOrigin.Z);
+            float multiplier = -(n + D) / divider;
+            Vector3 result = new Vector3(
+                multiplier * normalizedVector.X + position.X,
+                multiplier * normalizedVector.Y + position.Y,
+                multiplier * normalizedVector.Z + position.Z
+            );
+            return result;
         }
 
         internal void SetFOV(float halfPlane, float angle)
