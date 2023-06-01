@@ -98,7 +98,7 @@ namespace RayTracer
 
     internal class TexturedSphere : Sphere
     {
-        internal TexturedSphere(Vector3 position, float radius, Vector3 materialColor, Vector3 specularColor, float specularity = 0) : base(position, radius, materialColor, specularColor, specularity)
+        internal TexturedSphere(Vector3 position, float radius, Vector3 materialColor, Vector3 specularColor, float specularity = 0, Materials material = Materials.vacuum) : base(position, radius, materialColor, specularColor, specularity, material)
         {
 
         }
@@ -106,7 +106,7 @@ namespace RayTracer
 
     internal class TexturedTriangle : Triangle
     {
-        internal TexturedTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(pointA, pointB, pointC, materialColor, speculalColor)
+        internal TexturedTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(pointA, pointB, pointC, materialColor, speculalColor, specularity, material)
         {
 
         }
@@ -114,9 +114,9 @@ namespace RayTracer
 
     internal class TexturedPlane : Plane
     {
-        internal TexturedPlane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0) : base(normal,distanceToOrigin,materialColor,speculalColor)
+        internal TexturedPlane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(normal,distanceToOrigin,materialColor,speculalColor, specularity, material)
         {
 
         }
     }
-}
+} 

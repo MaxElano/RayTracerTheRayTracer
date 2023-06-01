@@ -19,8 +19,7 @@ namespace RayTracer
     //For the middle row of pixels (typically line 256 for a 512x512 window), it generates debug output by visualizing every Nthray (where N is e.g. 10).
     internal class Raytracer
     {
-        Scene scene;
-        Camera debugCamera;
+        internal Scene scene;
         internal Camera camera;
         Surface screen, map;
 
@@ -612,10 +611,6 @@ namespace RayTracer
             float nOD = intersection.nearestPrimitive.opticalDensity; //Next Optical Density
             if (Vector3.Dot(n, d) > 0) //Moving out of a sphere
             {
-                if (pOD == 1.333f)
-                {
-
-                }
                 n *= -1;
                 nOD = scene.sceneOpticalDensity;
             }

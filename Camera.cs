@@ -29,8 +29,8 @@ namespace RayTracer
         public Vector3 leftBottom;
         public Vector3 rightBottom;
 
-        float resolution;
-        internal float fov;
+        internal float resolution;
+        internal float fov, pitch, yaw;
 
         internal Surface screen;
         internal Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, float distanceToScreenPlane, Surface screen)
@@ -46,26 +46,89 @@ namespace RayTracer
             screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
 
             resolution = (float)screen.width / (float)screen.height;
-            fov = 45;
 
             SetScreenPlaneCorners();
         }
+
         internal void SetScreenPlaneCorners()
         {
-            screenPlaneCenter = position + (distanceToScreenPlane * (fov/45)) * lookAtDirection;
+            screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
             leftTop = screenPlaneCenter + upDirection - resolution * rightDirection;
             rightTop = screenPlaneCenter + upDirection + resolution * rightDirection;
             leftBottom = screenPlaneCenter - upDirection - resolution * rightDirection;
             rightBottom = screenPlaneCenter - upDirection + resolution * rightDirection;
         }
 
-        internal void RotateCamera(float pitch, float yaw)
+        internal void SetFrontDirection()
         {
             lookAtDirection = new Vector3(
-            (float)(Math.Cos(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch))),
-            (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
-            (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(pitch))));
+                (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
+                (float)Math.Sin(MathHelper.DegreesToRadians(pitch)),
+                (float)(-Math.Cos(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch)))
+            );
             lookAtDirection.Normalize();
+        }
+
+        internal void SetRightDirection()
+        {
+            rightDirection = new Vector3(
+                (float)Math.Cos(MathHelper.DegreesToRadians(yaw)),
+                0f,
+                (float)Math.Sin(MathHelper.DegreesToRadians(yaw))
+            );
+            rightDirection.Normalize();
+        }
+
+        internal void SetUpDirection()
+        {
+            upDirection = Vector3.Cross(rightDirection, lookAtDirection);
+            upDirection.Normalize();
+        }
+
+        internal void LookAt(Primitive target)
+        {
+            if (target is Sphere)
+            {
+                var sphere = (Sphere)target;
+                lookAtDirection = new Vector3(position.X - sphere.position.X, sphere.position.Y - position.Y, sphere.position.Z - position.Z);
+            }
+            else if (target is Plane)
+            {
+                var plane = (Plane)target;
+                lookAtDirection = new Vector3(position.X - plane.distanceToOrigin.X, plane.distanceToOrigin.Y - position.Y, plane.distanceToOrigin.Z - position.Z);
+            }
+            else if (target is Triangle)
+            {
+                var triangle = (Triangle)target;
+                Vector3 triangleCenter = (triangle.pointA + triangle.pointB + triangle.pointC) / 3;
+                lookAtDirection = new Vector3(position.X - triangleCenter.X, triangleCenter.Y - position.Y, triangleCenter.Z - position.Z);
+            }
+            lookAtDirection.Normalize();
+            CalculateNewPitchYaw();
+
+            SetFrontDirection();
+            SetRightDirection();
+            SetUpDirection();
+        }
+
+        internal void CalculateNewPitchYaw()
+        {
+            pitch = (float)MathHelper.RadiansToDegrees(Math.Asin(lookAtDirection.Y));
+            double tempX = lookAtDirection.X / Math.Cos(MathHelper.DegreesToRadians(pitch));
+            double tempZ = lookAtDirection.Z / Math.Cos(MathHelper.DegreesToRadians(pitch));
+            yaw = (float)MathHelper.RadiansToDegrees(Math.Atan2(tempX, tempZ)) + 180f;
+        }
+
+        internal void SetFOV(float halfPlane, float angle)
+        {
+            distanceToScreenPlane = halfPlane / (float)Math.Tan(MathHelper.DegreesToRadians(angle));
+            fov = CalculateFOV(resolution, distanceToScreenPlane);
+
+        }
+
+        internal float CalculateFOV(float halfPlane, float disPlane)
+        {
+            return (float)MathHelper.RadiansToDegrees(Math.Atan(halfPlane / disPlane));
         }
     }
 }
