@@ -120,9 +120,9 @@ namespace RayTracer
                             screen.pixels[x + y * screen.width] = 0;
                             Vector3 finalColor = Vector3.Zero;
                             int rayCounter = 0;
-                            for (float i = -aaDiff; i <= aaDiff; i++)
+                            for (float i = -0.5f; i <= 0.5f; i += aaDiff)
                             {
-                                for (float j = -aaDiff; j <= aaDiff; j++)
+                                for (float j = -0.5f; j <= 0.5f; j += aaDiff)
                                 {
                                     rayCounter++;
                                     Ray primaryRay = FindPrimaryRay(x + i, y + j, screen.width, screen.height);
