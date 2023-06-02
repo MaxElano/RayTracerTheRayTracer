@@ -34,11 +34,11 @@ namespace RayTracer
         bool showBackground = true;
 
         //-------Debugging------
-        bool showPrimaryRays = true;
-        bool showShadowRays = true;
-        bool showReflectionRays = true;
-        bool showRefractionRays = true;
-        bool showPrimitives = true;
+        internal bool showPrimaryRays = true;
+        internal bool showShadowRays = true;
+        internal bool showReflectionRays = true;
+        internal bool showRefractionRays = true;
+        internal bool showPrimitives = true;
 
         //-------Multi Threading------
         internal static object lockObject = new object();

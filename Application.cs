@@ -57,7 +57,10 @@ namespace RayTracer
 
         private void KeyboardInputDebugger()
         {
-
+            if (keyboard[Keys.P])
+            {
+                raytracer.showPrimaryRays = !raytracer.showPrimaryRays;
+            }
         }
 
         private void KeyboardInput()
