@@ -16,7 +16,7 @@ namespace RayTracer
         Primitive target;
         static internal float epsilon = 0.0001f;
         private int targetCounter;
-        private bool targetSwitched, debugModeSwitch
+        private bool targetSwitched, debugModeSwitch;
         Stopwatch pressTimer = new Stopwatch();
         bool showHelp = true;
         Surface screen;
@@ -43,6 +43,7 @@ namespace RayTracer
         {
             raytracer.Render();
 
+            //Check if help menu needs to show up and or switched
             pressTimer.Stop();
             if (keyboard[Keys.H] && pressTimer.ElapsedMilliseconds > pressInterval)
             {
@@ -108,10 +109,16 @@ namespace RayTracer
                 distanceCounter++;
                 screen.Print("Look At: Space", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
                 distanceCounter++;
+                screen.Print("Increase POV: ScrollDown", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Decrease POV: ScrollUp", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
                 screen.Print("Enter Debug: Lalt", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+
             }
         }
-
+        
+        //Handles the keyboard in Debug Mode
         private void KeyboardInputDebugger()
         {
             pressTimer.Stop();
