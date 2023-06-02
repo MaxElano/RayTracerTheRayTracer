@@ -283,67 +283,7 @@ namespace RayTracer
             {
                 ray.intersectionDistance = Math.Abs((intersection.position - ray.origin).Length);
                 //----Textures----
-                Vector3 materialColor = intersection.nearestPrimitive.materialColor;
-                //Defines the U and V values for the textured sphere and then checks which pattern is needed
-                if (intersection.nearestPrimitive is TexturedSphere)
-                {
-                    var sphere = (TexturedSphere)intersection.nearestPrimitive;
-
-                    double theta = Math.Acos((intersection.position.Z - sphere.position.Z) / sphere.radius);
-                    double phi = Math.Atan2(intersection.position.Y - sphere.position.Y, intersection.position.X - sphere.position.X);
-                    double u = (phi + Math.PI) / (2 * Math.PI);
-                    double v = theta / Math.PI;
-
-                    if (sphere.pattern == "Stripes")
-                        materialColor = StripePattern(u, v, 2);
-                    else if (sphere.pattern == "Checkers")
-                        materialColor = CheckboardPattern(u, v, 16);
-                    else
-                        materialColor = ImagePattern(u, v, sphere.map);
-                }
-                else if (intersection.nearestPrimitive is TexturedTriangle)
-                {
-                    var triangle = (TexturedTriangle)intersection.nearestPrimitive;
-                    double uA = 0;
-                    double uB = 1;
-                    double uC = 0.5;
-                    double vA = 0;
-                    double vB = 0;
-                    double vC = 1;
-
-
-                    double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
-                    double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
-
-                    if (triangle.pattern == "Stripes")
-                        materialColor = StripePattern(uP, vP, 2);
-                    else if (triangle.pattern == "Checkers")
-                        materialColor = CheckboardPattern(uP, vP, 4);
-                    else
-                        materialColor = ImagePattern(uP, vP, triangle.map);
-                }
-                else if (intersection.nearestPrimitive is TexturedPlane)
-                {
-                    var plane = (TexturedPlane)intersection.nearestPrimitive;
-                    Vector3 n = new Vector3(1, 0, 0);
-                    Vector3 vectorU = n - (Vector3.Dot(n, plane.normal) * plane.normal);
-                    vectorU = Vector3.Normalize(vectorU);
-                    Vector3 vectorV = Vector3.Cross(plane.normal, vectorU);
-
-                    float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
-                    float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
-
-                    u = (float)Math.Sqrt((u % 1) * (u % 1));
-                    v = (float)Math.Sqrt((v % 1) * (v % 1));
-
-                    if (plane.pattern == "Stripes")
-                        materialColor = StripePattern(u, v, 2);
-                    else if (plane.pattern == "Checkers")
-                        materialColor = CheckboardPattern(u, v, 4);
-                    else
-                        materialColor = ImagePattern(u, v, plane.map);
-                }
-
+                Vector3 materialColor = CheckMaterialColor(intersection);
                 Vector3 materialsAmbientColor = materialColor;
 
                 //----Pure Specular----
@@ -460,6 +400,71 @@ namespace RayTracer
                 else
                     return Vector3.Zero;
             }
+        }
+        //Checks whether the object is textured, if so returns the correct new materialColor for that pixel
+        internal Vector3 CheckMaterialColor(Intersection intersection)
+        {
+            if (intersection.nearestPrimitive is TexturedSphere)
+            {
+                var sphere = (TexturedSphere)intersection.nearestPrimitive;
+
+                double theta = Math.Acos((intersection.position.Z - sphere.position.Z) / sphere.radius);
+                double phi = Math.Atan2(intersection.position.Y - sphere.position.Y, intersection.position.X - sphere.position.X);
+                double u = (phi + Math.PI) / (2 * Math.PI);
+                double v = theta / Math.PI;
+
+                if (sphere.pattern == "Stripes")
+                    materialColor = StripePattern(u, v, 2);
+                else if (sphere.pattern == "Checkers")
+                    materialColor = CheckboardPattern(u, v, 16);
+                else
+                    materialColor = ImagePattern(u, v, sphere.map);
+            }
+            else if (intersection.nearestPrimitive is TexturedTriangle)
+            {
+                var triangle = (TexturedTriangle)intersection.nearestPrimitive;
+                double uA = 0;
+                double uB = 1;
+                double uC = 0.5;
+                double vA = 0;
+                double vB = 0;
+                double vC = 1;
+
+
+                double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
+                double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
+
+                if (triangle.pattern == "Stripes")
+                    materialColor = StripePattern(uP, vP, 2);
+                else if (triangle.pattern == "Checkers")
+                    materialColor = CheckboardPattern(uP, vP, 4);
+                else
+                    materialColor = ImagePattern(uP, vP, triangle.map);
+            }
+            else if (intersection.nearestPrimitive is TexturedPlane)
+            {
+                var plane = (TexturedPlane)intersection.nearestPrimitive;
+                Vector3 n = new Vector3(1, 0, 0);
+                Vector3 vectorU = n - (Vector3.Dot(n, plane.normal) * plane.normal);
+                vectorU = Vector3.Normalize(vectorU);
+                Vector3 vectorV = Vector3.Cross(plane.normal, vectorU);
+
+                float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
+                float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
+
+                u = (float)Math.Sqrt((u % 1) * (u % 1));
+                v = (float)Math.Sqrt((v % 1) * (v % 1));
+
+                if (plane.pattern == "Stripes")
+                    materialColor = StripePattern(u, v, 2);
+                else if (plane.pattern == "Checkers")
+                    materialColor = CheckboardPattern(u, v, 4);
+                else
+                    materialColor = ImagePattern(u, v, plane.map);
+            }
+            return materialColor;
+        }
+
         }
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
