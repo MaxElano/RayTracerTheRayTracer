@@ -1,11 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static OpenTK.Graphics.OpenGL.GL;
+﻿using OpenTK.Mathematics;
 
 namespace RayTracer
 {
@@ -20,9 +13,9 @@ namespace RayTracer
         internal Vector3 lookAtDirection;
         internal Vector3 upDirection;
         internal Vector3 rightDirection;
-        internal float distanceToScreenPlane; 
+        internal float distanceToScreenPlane;
         internal Vector3 screenPlaneCenter;
-        
+
 
         public Vector3 leftTop;
         public Vector3 rightTop;
@@ -141,7 +134,7 @@ namespace RayTracer
             Vector3 normalizedVector = plane.normal.Normalized();
             float divider = normalizedVector.X * plane.normal.X + normalizedVector.Y * plane.normal.Y + normalizedVector.Z * plane.normal.Z;
             float n = plane.normal.X * position.X + plane.normal.Y * position.Y + plane.normal.Z * position.Z;
-            float D = -(plane.normal.X * plane.distanceToOrigin.X + plane.normal.Y * plane.distanceToOrigin.Y + plane.normal.Z *  plane.distanceToOrigin.Z);
+            float D = -(plane.normal.X * plane.distanceToOrigin.X + plane.normal.Y * plane.distanceToOrigin.Y + plane.normal.Z * plane.distanceToOrigin.Z);
             float multiplier = -(n + D) / divider;
             Vector3 result = new Vector3(
                 multiplier * normalizedVector.X + position.X,

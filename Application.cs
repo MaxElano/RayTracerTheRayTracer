@@ -1,6 +1,6 @@
 ﻿
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 
 namespace RayTracer
@@ -117,7 +117,7 @@ namespace RayTracer
 
             }
         }
-        
+
         //Handles the keyboard in Debug Mode
         private void KeyboardInputDebugger()
         {
@@ -235,8 +235,8 @@ namespace RayTracer
                     targetCounter++;
                 else
                     targetCounter = 0;
-                
-                target = raytracer.scene.primitives[targetCounter]; 
+
+                target = raytracer.scene.primitives[targetCounter];
                 camera.LookAt(target);
             }
             else if (keyboard[Keys.O] && !targetSwitched)
@@ -266,7 +266,7 @@ namespace RayTracer
                 debugModeSwitch = false;
 
             //If both Alt keys are held down, the screen enters debug mode
-            if (keyboard[Keys.LeftAlt]&& !raytracer.debugMode && !debugModeSwitch)
+            if (keyboard[Keys.LeftAlt] && !raytracer.debugMode && !debugModeSwitch)
             {
                 camera.lookAtDirection = new Vector3(0, 0, 1);
                 camera.CalculateNewPitchYaw();
@@ -284,9 +284,9 @@ namespace RayTracer
         private void MouseInput()
         {
             if (mouse.ScrollDelta.Y > 0 && camera.fov > 2)
-                camera.SetFOV(camera.fov-=3);
+                camera.SetFOV(camera.fov -= 3);
             if (mouse.ScrollDelta.Y < 0 && camera.fov < 88)
-                camera.SetFOV(camera.fov+=3);
+                camera.SetFOV(camera.fov += 3);
 
             camera.SetScreenPlaneCorners();
         }

@@ -1,9 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer
 {
@@ -29,7 +24,7 @@ namespace RayTracer
             opticalDensity = DetermineOpticalDensity(material);
 
         }
-        
+
         internal static float DetermineOpticalDensity(Materials material)
         {
             switch (material)
@@ -106,7 +101,7 @@ namespace RayTracer
             if (image != "null")
                 map = new Surface("../../../assets/" + image + ".png");
         }
-    } 
+    }
 
     internal class TexturedTriangle : Triangle
     {
@@ -124,7 +119,7 @@ namespace RayTracer
     {
         internal string pattern;
         internal Surface map;
-        internal TexturedPlane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum, string pattern = "Checkers", string image = "null") : base(normal,distanceToOrigin,materialColor,speculalColor, specularity, material)
+        internal TexturedPlane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum, string pattern = "Checkers", string image = "null") : base(normal, distanceToOrigin, materialColor, speculalColor, specularity, material)
         {
             base.normal = normal;
             base.normal.Normalize();
@@ -134,4 +129,4 @@ namespace RayTracer
                 map = new Surface("../../../assets/" + image + ".png");
         }
     }
-} 
+}

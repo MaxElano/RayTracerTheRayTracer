@@ -28,7 +28,7 @@ namespace RayTracer
             timer.Start();
             application.Update();
             timer.Stop();
-            if(timer.ElapsedMilliseconds != 0)
+            if (timer.ElapsedMilliseconds != 0)
                 screen.Print("FPS: " + 1000 / timer.ElapsedMilliseconds, screen.width - 100, 10, 255 * 256 * 256 + 255 * 256 + 255);
             timer.Restart();
             //screen.Clear(0);

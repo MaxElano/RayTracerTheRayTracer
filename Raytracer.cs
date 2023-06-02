@@ -1,15 +1,5 @@
-﻿using Microsoft.VisualBasic;
-using OpenTK.Graphics.ES11;
-using OpenTK.Mathematics;
-using SixLabors.ImageSharp.ColorSpaces;
-using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using OpenTK.Mathematics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static OpenTK.Graphics.OpenGL.GL;
 
 namespace RayTracer
 {
@@ -47,7 +37,7 @@ namespace RayTracer
         internal Raytracer(Surface screen)
         {
             scene = new Scene();
-            camera = new Camera(new Vector3(0,0,0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
+            camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
             multiThreading = true;
             this.screen = screen;
@@ -59,7 +49,7 @@ namespace RayTracer
             {
                 screen.Clear(0x000000);
 
-                screen.Line(TX(camera.leftBottom.X)-1, TY(-camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X)-1, TY(-camera.position.Z - camera.distanceToScreenPlane), 0xffffff); //Draws the screenplane
+                screen.Line(TX(camera.leftBottom.X) - 1, TY(-camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X) - 1, TY(-camera.position.Z - camera.distanceToScreenPlane), 0xffffff); //Draws the screenplane
                 screen.Box(TX(camera.position.X) - 1, TY(-camera.position.Z) + 1, TX(camera.position.X) + 1, TY(-camera.position.Z) - 1, 0xffffff); //Draws the camera
 
                 if (showPrimitives)
@@ -157,7 +147,7 @@ namespace RayTracer
                 }
             }
         }
-        
+
         internal void DebugTrace(Ray ray, Scene scene, int nextColor)
         {
             Intersection intersection = PrimaryRayIntersection(ray, scene);
@@ -189,7 +179,7 @@ namespace RayTracer
 
             if (intersection != null)
             {
-                if(draw)
+                if (draw)
                     screen.Line(TX(ray.origin.X), TY(-ray.origin.Z), TX(intersection.position.X), TY(-intersection.position.Z), nextColor);
 
                 //Pure Specular
@@ -254,7 +244,7 @@ namespace RayTracer
                         {
                             if (light is Spotlight && !(light as Spotlight).DoesItHit(shadowRay))
                             {
-                                if(showShadowRays)
+                                if (showShadowRays)
                                     screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xc4b07b);
                             }
                             else
@@ -274,18 +264,18 @@ namespace RayTracer
             }
             else
             {
-                if(draw)
+                if (draw)
                     screen.Line(TX(ray.origin.X), TY(-ray.origin.Z), TX(ray.origin.X + ray.direction.X * 80), TY(-(ray.origin.Z + ray.direction.Z * 80)), nextColor);
             }
         }
 
-        internal Vector3 Trace(Ray ray, Scene scene) 
+        internal Vector3 Trace(Ray ray, Scene scene)
         {
             Vector3 color = Vector3.Zero;
 
             //-------------Start Searching For Closest Primitive-------------
             Intersection intersection = PrimaryRayIntersection(ray, scene);
-            
+
             //-------------Ray Hit Something So Do...-------------
             if (intersection != null)
             {
@@ -302,7 +292,7 @@ namespace RayTracer
                         Vector3 reflectedVector = ray.direction - 2 * Vector3.Dot(ray.direction, intersection.normal) * intersection.normal;
                         reflectedVector.Normalize();
                         Ray reflectedRay = new Ray(intersection.position, reflectedVector, 0, ray.numberOfBounces + 1);
-                        color += materialsAmbientColor * ambientLightRadiance + materialColor * Trace(reflectedRay, scene) ;
+                        color += materialsAmbientColor * ambientLightRadiance + materialColor * Trace(reflectedRay, scene);
                         return color;
                     }
                 }
@@ -382,11 +372,11 @@ namespace RayTracer
                         }
                     }
 
-                    
+
 
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
-                
+
 
 
                 //if (intersection.nearestPrimitive is Triangle)
@@ -399,7 +389,7 @@ namespace RayTracer
             }
             else
             {
-                if(showBackground)
+                if (showBackground)
                     return Background(ray.direction);
                 else
                     return Vector3.Zero;
@@ -476,7 +466,7 @@ namespace RayTracer
         //This method returns the correct color according to the given u and v values and checkboard pattern
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
-            float opacity = (int)(u*factor) + (int)(v*factor) & 1;
+            float opacity = (int)(u * factor) + (int)(v * factor) & 1;
             Vector3 finalColor = new Vector3(1f, 1f, 1f);
 
             return opacity * finalColor;
@@ -485,7 +475,7 @@ namespace RayTracer
         //This method returns the correct color according to the given u and v values and stripes pattern
         internal Vector3 StripePattern(double u, double v, float factor)
         {
-            float opacity = (float)(Math.Sin(MathHelper.RadiansToDegrees(u*factor)) + 1) / 2;
+            float opacity = (float)(Math.Sin(MathHelper.RadiansToDegrees(u * factor)) + 1) / 2;
             Vector3 finalColor = new Vector3(1f, 1f, 1f);
 
             return opacity * finalColor;
@@ -494,7 +484,7 @@ namespace RayTracer
         //This method returns the correct color according to the given u and v values and pixel in image
         internal Vector3 ImagePattern(double u, double v, Surface map)
         {
-            u = Math.Clamp((int)(map.width - (u * map.width)), 0, map.width -1);
+            u = Math.Clamp((int)(map.width - (u * map.width)), 0, map.width - 1);
             v = Math.Clamp((int)(map.height - (v * map.height)), 0, map.height - 1);
 
             int intColor = (map.pixels[(int)u + (int)v * map.width]);
@@ -712,7 +702,7 @@ namespace RayTracer
             }
             float cosT = Vector3.Dot(d, n);
             float sqrt = 1 - ((pOD * pOD) / (nOD * nOD)) * (1 - cosT * cosT);
-            if(sqrt >= 0)
+            if (sqrt >= 0)
             {
                 Vector3 t = (pOD / nOD) * (d + cosT * n) - (float)Math.Sqrt(sqrt) * n;
                 t.Normalize();
@@ -725,12 +715,12 @@ namespace RayTracer
         }
         private int TX(float X)
         {
-            return (int)((-X+camera.position.X) * 60 + screen.width / 2);
+            return (int)((-X + camera.position.X) * 60 + screen.width / 2);
         }
 
         private int TY(float Z)
         {
-            return (int)((Z+camera.position.Z) * 60 + screen.height * 0.9f);
+            return (int)((Z + camera.position.Z) * 60 + screen.height * 0.9f);
         }
 
         internal Vector3 Background(Vector3 direction)
@@ -739,10 +729,10 @@ namespace RayTracer
             double phi = 90;
             if (direction.Z != 0)
                 theta = MathHelper.RadiansToDegrees(Math.Atan(direction.X / direction.Z));
-            if(direction.Z != 0)
+            if (direction.Z != 0)
                 phi = MathHelper.RadiansToDegrees(Math.Atan(direction.Y / direction.Z));
 
-            if(direction.Z > 0)
+            if (direction.Z > 0)
             {
                 phi *= -1;
             }
