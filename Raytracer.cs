@@ -404,6 +404,7 @@ namespace RayTracer
         //Checks whether the object is textured, if so returns the correct new materialColor for that pixel
         internal Vector3 CheckMaterialColor(Intersection intersection)
         {
+            Vector3 materialColor = intersection.nearestPrimitive.materialColor;
             if (intersection.nearestPrimitive is TexturedSphere)
             {
                 var sphere = (TexturedSphere)intersection.nearestPrimitive;
@@ -465,7 +466,7 @@ namespace RayTracer
             return materialColor;
         }
 
-        }
+        
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
             float opacity = (int)(u*factor) + (int)(v*factor) & 1;
