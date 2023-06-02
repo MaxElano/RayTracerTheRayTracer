@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+//using SixLabors.ImageSharp;
 using System.Drawing;
 
 namespace RayTracer
@@ -23,6 +24,9 @@ namespace RayTracer
 
         bool showBackground = true;
 
+        int aaNumber = 2;
+        float aaDiff;
+
         //-------Debugging------
         internal bool showPrimaryRays = true;
         internal bool showShadowRays = true;
@@ -36,6 +40,7 @@ namespace RayTracer
 
         internal Raytracer(Surface screen)
         {
+            aaDiff = 1 / aaNumber;
             scene = new Scene();
             camera = new Camera(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
@@ -89,28 +94,60 @@ namespace RayTracer
                     {
                         Parallel.For(0, screen.width, x =>
                         {
-                            screen.pixels[x + y * screen.width] = 0;
-                            Ray primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
-                            Intersection primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
-                            Vector3 color;
+                            //screen.pixels[x + y * screen.width] = 0;
+                            //Ray primaryRay = FindPrimaryRay(x, y, screen.width, screen.height);
+                            //Intersection primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
+                            //Vector3 color;
 
-                            if (primaryIntersection != null)
+                            //if (primaryIntersection != null)
+                            //{
+                            //    color = Trace(primaryRay, scene);
+                            //    int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                            //    screen.pixels[x + y * screen.width] = tempColor;
+                            //}
+                            //else
+                            //{
+                            //    if (showBackground)
+                            //    {
+                            //        color = Background(primaryRay.direction);
+                            //        int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                            //        screen.pixels[x + y * screen.width] = tempColor;
+                            //    }
+                            //    else
+                            //        screen.pixels[x + y * screen.width] = 0;
+                            //}
+
+                            screen.pixels[x + y * screen.width] = 0;
+                            Vector3 finalColor = Vector3.Zero;
+                            int rayCounter = 0;
+                            for (float i = -aaDiff; i <= aaDiff; i++)
                             {
-                                color = Trace(primaryRay, scene);
-                                int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
-                                screen.pixels[x + y * screen.width] = tempColor;
-                            }
-                            else
-                            {
-                                if (showBackground)
+                                for (float j = -aaDiff; j <= aaDiff; j++)
                                 {
-                                    color = Background(primaryRay.direction);
-                                    int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
-                                    screen.pixels[x + y * screen.width] = tempColor;
+                                    rayCounter++;
+                                    Ray primaryRay = FindPrimaryRay(x + i, y + j, screen.width, screen.height);
+                                    Intersection primaryIntersection = PrimaryRayIntersection(primaryRay, scene);
+                                    Vector3 rcolor = Vector3.Zero;
+
+                                    if (primaryIntersection != null)
+                                    {
+                                        rcolor = Trace(primaryRay, scene);
+                                    }
+                                    else
+                                    {
+                                        if (showBackground)
+                                        {
+                                            rcolor = Background(primaryRay.direction);
+                                        }
+                                        else
+                                            rcolor = Vector3.Zero;
+                                    }
+                                    finalColor += rcolor;
                                 }
-                                else
-                                    screen.pixels[x + y * screen.width] = 0;
                             }
+                            Vector3 color = finalColor / rayCounter;
+                            int tempColor = ((int)Math.Round(Math.Clamp(color.X, 0, 1) * 255)) * 256 * 256 + ((int)Math.Round(Math.Clamp(color.Y, 0, 1) * 255)) * 256 + (int)Math.Round(Math.Clamp(color.Z, 0, 1) * 255);
+                            screen.pixels[x + y * screen.width] = tempColor;
                         });
                     });
                 }
