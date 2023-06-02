@@ -683,8 +683,8 @@ namespace RayTracer
 
         internal Vector3 Background(Vector3 direction)
         {
-            double theta = 1;
-            double phi = 1;
+            double theta = 90;
+            double phi = 90;
             if (direction.Z != 0)
                 theta = MathHelper.RadiansToDegrees(Math.Atan(direction.X / direction.Z));
             if(direction.Z != 0)
