@@ -49,6 +49,15 @@ namespace RayTracer
                 camera.fov = camera.CalculateFOV(camera.resolution, camera.distanceToScreenPlane);
                 camera.screen.Print(((int)camera.fov).ToString(), camera.screen.width / 25, camera.screen.height / 25, 0xffffff);
             }
+            else
+            {
+                KeyboardInputDebugger();
+            }
+        }
+
+        private void KeyboardInputDebugger()
+        {
+
         }
 
         private void KeyboardInput()
