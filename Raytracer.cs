@@ -42,7 +42,7 @@ namespace RayTracer
 
         //-------Multi Threading------
         internal static object lockObject = new object();
-        internal bool debugMode, multiThreading = false;
+        internal bool debugMode, multiThreading = true;
 
         internal Raytracer(Surface screen)
         {
@@ -283,50 +283,12 @@ namespace RayTracer
             if (intersection != null)
             {
                 ray.intersectionDistance = Math.Abs((intersection.position - ray.origin).Length);
-                //----Textures----
-                Vector3 materialColor = intersection.nearestPrimitive.materialColor;
-                if (intersection.nearestPrimitive is TexturedSphere)
-                {
-                    var sphere = (TexturedSphere)intersection.nearestPrimitive;
+                
 
-                    double theta = Math.Acos((intersection.position.Z - sphere.position.Z) / sphere.radius);
-                    double phi = Math.Atan2(intersection.position.Y - sphere.position.Y, intersection.position.X - sphere.position.X);
-                    double u = (phi + Math.PI) / (2 * Math.PI);
-                    double v = theta / Math.PI;
-
-                    materialColor = CheckboardPattern(u, v, 32);
-                }
-                else if (intersection.nearestPrimitive is TexturedTriangle)
-                {
-                    var triangle = (TexturedTriangle)intersection.nearestPrimitive;
-                    double uA = 0;
-                    double uB = 1;
-                    double uC = 0.5;
-                    double vA = 0;
-                    double vB = 0;
-                    double vC = 1;
-
-
-                    double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
-                    double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
-
-                    materialColor = CheckboardPattern(uP, vP, 32);
-                }
-                else if (intersection.nearestPrimitive is TexturedPlane)
-                {
-                    var plane = (TexturedPlane)intersection.nearestPrimitive;
-                    Vector3 n = new Vector3(1, 0, 0);
-                    Vector3 vectorU = n - (Vector3.Dot(n, plane.normal) * plane.normal);
-                    vectorU = Vector3.Normalize(vectorU);
-                    Vector3 vectorV = Vector3.Cross(plane.normal, vectorU);
-
-                    float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
-                    float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
-
-                    materialColor = CheckboardPattern(u, v, 4);
-                }
-
+                //----Material Color----
+                Vector3 materialColor = CheckMaterialColor(intersection);
                 Vector3 materialsAmbientColor = materialColor;
+
 
                 //----Pure Specular----
                 if (intersection.nearestPrimitive.specularity == 1)
@@ -443,6 +405,55 @@ namespace RayTracer
                     return Vector3.Zero;
             }
         }
+
+        //Checks whether the object is textured, if so returns the correct new materialColor for that pixel
+        internal Vector3 CheckMaterialColor(Intersection intersection)
+        {
+            Vector3 materialColor = intersection.nearestPrimitive.materialColor;
+            if (intersection.nearestPrimitive is TexturedSphere)
+            {
+                var sphere = (TexturedSphere)intersection.nearestPrimitive;
+
+                double theta = Math.Acos((intersection.position.Z - sphere.position.Z) / sphere.radius);
+                double phi = Math.Atan2(intersection.position.Y - sphere.position.Y, intersection.position.X - sphere.position.X);
+                double u = (phi + Math.PI) / (2 * Math.PI);
+                double v = theta / Math.PI;
+
+                materialColor = CheckboardPattern(u, v, 32);
+            }
+            else if (intersection.nearestPrimitive is TexturedTriangle)
+            {
+                var triangle = (TexturedTriangle)intersection.nearestPrimitive;
+                double uA = 0;
+                double uB = 1;
+                double uC = 0.5;
+                double vA = 0;
+                double vB = 0;
+                double vC = 1;
+
+
+                double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
+                double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
+
+                materialColor = CheckboardPattern(uP, vP, 32);
+            }
+            else if (intersection.nearestPrimitive is TexturedPlane)
+            {
+                var plane = (TexturedPlane)intersection.nearestPrimitive;
+                Vector3 n = new Vector3(1, 0, 0);
+                Vector3 vectorU = n - (Vector3.Dot(n, plane.normal) * plane.normal);
+                vectorU = Vector3.Normalize(vectorU);
+                Vector3 vectorV = Vector3.Cross(plane.normal, vectorU);
+
+                float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
+                float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
+
+                materialColor = CheckboardPattern(u, v, 4);
+            }
+            return materialColor;
+        }
+
+        //Creates the checkboardPattern
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
             int opacity = (int)(u*factor) + (int)(v*factor) & 1;
@@ -495,6 +506,24 @@ namespace RayTracer
                 return intersection;
             else
                 return null;
+        }
+        internal Intersection CheckCollision(Ray ray, Primitive primitive)
+        {
+            Intersection tempIntersection = null;
+            if (primitive is Plane)
+            {
+                tempIntersection = collideRayPlane(ray, primitive as Plane);
+            }
+            else if (primitive is Sphere)
+            {
+                tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
+                if (!(tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon))
+                    tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
+            }
+            else if (primitive is Triangle)
+            {
+                tempIntersection = collideRayTriangle(ray, scene.primitives[i] as Triangle);
+            }
         }
 
         internal Intersection ShadowRayIntersection(Ray ray, Scene scene)
