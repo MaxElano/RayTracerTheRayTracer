@@ -58,12 +58,13 @@ namespace RayTracer
             {
                 screen.Clear(0x000000);
 
-                screen.Line(TX(camera.leftBottom.X), TY(-camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X), TY(-camera.position.Z - camera.distanceToScreenPlane), 0xffffff);
-                screen.Box(TX(camera.position.X) - 1, TY(-camera.position.Z) + 1, TX(camera.position.X) + 1, TY(-camera.position.Z) - 1, 0xffffff);
+                screen.Line(TX(camera.leftBottom.X)-1, TY(-camera.position.Z - camera.distanceToScreenPlane), TX(camera.rightBottom.X)-1, TY(-camera.position.Z - camera.distanceToScreenPlane), 0xffffff); //Draws the screenplane
+                screen.Box(TX(camera.position.X) - 1, TY(-camera.position.Z) + 1, TX(camera.position.X) + 1, TY(-camera.position.Z) - 1, 0xffffff); //Draws the camera
 
                 if (showPrimitives)
                 {
                     foreach (var item in scene.primitives)
+                        //Draws the spheres
                         if (item is Sphere)
                         {
                             Sphere sphere = (Sphere)item;
@@ -80,6 +81,7 @@ namespace RayTracer
                         }
                 }
 
+                //Draws all the rays
                 for (int x = 0; x < screen.width; x++)
                     if (x % 10 == 0 || x == 0)
                     {
@@ -91,6 +93,7 @@ namespace RayTracer
             {
                 if (multiThreading)
                 {
+                    //Multithreading variation of the forloop
                     Parallel.For(0, screen.height, y =>
                     {
                         Parallel.For(0, screen.width, x =>
@@ -122,6 +125,7 @@ namespace RayTracer
                 }
                 else
                 {
+                    //Normal variation of the forloop
                     for (int y = 0; y < screen.height; y++)
                     {
                         for (int x = 0; x < screen.width; x++)
@@ -404,6 +408,7 @@ namespace RayTracer
         internal Vector3 CheckMaterialColor(Intersection intersection)
         {
             Vector3 materialColor = intersection.nearestPrimitive.materialColor;
+            //Finds the U and V values for the sphere and then checks which texture pattern is required
             if (intersection.nearestPrimitive is TexturedSphere)
             {
                 var sphere = (TexturedSphere)intersection.nearestPrimitive;
@@ -420,6 +425,7 @@ namespace RayTracer
                 else
                     materialColor = ImagePattern(u, v, sphere.map);
             }
+            //Finds the U and V values for the triangle and then checks which texture pattern is required
             else if (intersection.nearestPrimitive is TexturedTriangle)
             {
                 var triangle = (TexturedTriangle)intersection.nearestPrimitive;
@@ -441,6 +447,7 @@ namespace RayTracer
                 else
                     materialColor = ImagePattern(uP, vP, triangle.map);
             }
+            //Finds the U and V values for the triangle and then checks which texture pattern is required
             else if (intersection.nearestPrimitive is TexturedPlane)
             {
                 var plane = (TexturedPlane)intersection.nearestPrimitive;
@@ -465,7 +472,7 @@ namespace RayTracer
             return materialColor;
         }
 
-        
+        //This method returns the correct color according to the given u and v values and checkboard pattern
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
             float opacity = (int)(u*factor) + (int)(v*factor) & 1;
@@ -474,6 +481,7 @@ namespace RayTracer
             return opacity * finalColor;
         }
 
+        //This method returns the correct color according to the given u and v values and stripes pattern
         internal Vector3 StripePattern(double u, double v, float factor)
         {
             float opacity = (float)(Math.Sin(MathHelper.RadiansToDegrees(u*factor)) + 1) / 2;
@@ -482,6 +490,7 @@ namespace RayTracer
             return opacity * finalColor;
         }
 
+        //This method returns the correct color according to the given u and v values and pixel in image
         internal Vector3 ImagePattern(double u, double v, Surface map)
         {
             u = Math.Clamp((int)(map.width - (u * map.width)), 0, map.width -1);

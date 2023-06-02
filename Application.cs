@@ -16,7 +16,7 @@ namespace RayTracer
         Primitive target;
         static internal float epsilon = 0.0001f;
         private int targetCounter;
-        private bool targetSwitched;
+        private bool targetSwitched, debugModeSwitch
         Stopwatch pressTimer = new Stopwatch();
         bool showHelp = true;
         Surface screen;
@@ -141,6 +141,12 @@ namespace RayTracer
                 pressTimer.Reset();
             }
             pressTimer.Start();
+            //Pressing leftAlt in debugMode allows you to switch back to normal view
+            if (keyboard[Keys.LeftAlt] && raytracer.debugMode)
+            {
+                raytracer.debugMode = false;
+                debugModeSwitch = true;
+            }
         }
 
         //Checks the users keyboard inputs to control speed, movement, rotation, cycling through primitives and focusing on current targeted primitive
@@ -248,12 +254,18 @@ namespace RayTracer
             if (!keyboard[Keys.P] && !keyboard[Keys.O] && targetSwitched)
                 targetSwitched = false;
 
+            //Makes sure that you need to let go of LeftAlt before being able to switch back to debugMode
+            if (!keyboard[Keys.LeftAlt])
+                debugModeSwitch = false;
+
             //If both Alt keys are held down, the screen enters debug mode
-            if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt])
+            if (keyboard[Keys.LeftAlt]&& !raytracer.debugMode && !debugModeSwitch)
             {
                 camera.lookAtDirection = new Vector3(0, 0, 1);
-                camera.rightDirection = new Vector3(-1, 0, 0);
-                camera.upDirection = new Vector3(0, 1, 0);
+                camera.CalculateNewPitchYaw();
+                camera.SetLookAtDirection();
+                camera.SetRightDirection();
+                camera.SetUpDirection();
                 camera.SetScreenPlaneCorners();
                 raytracer.debugMode = true;
             }
