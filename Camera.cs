@@ -60,8 +60,8 @@ namespace RayTracer
             rightBottom = screenPlaneCenter - upDirection + resolution * rightDirection;
         }
 
-        //Sets the 
-        internal void SetFrontDirection()
+        //Sets the new lookAtDirection according to the yaw and pitch of the camera
+        internal void SetLookAtDirection()
         {
             lookAtDirection = new Vector3(
                 (float)(Math.Sin(MathHelper.DegreesToRadians(yaw)) * Math.Cos(MathHelper.DegreesToRadians(pitch))),
@@ -71,6 +71,7 @@ namespace RayTracer
             lookAtDirection.Normalize();
         }
 
+        //Sets the new rightDirection according to the yaw of the camera
         internal void SetRightDirection()
         {
             rightDirection = new Vector3(
@@ -81,12 +82,14 @@ namespace RayTracer
             rightDirection.Normalize();
         }
 
+        //Sets the upDirection as a crossproduct of the rightDirection and lookAtDirection
         internal void SetUpDirection()
         {
             upDirection = Vector3.Cross(rightDirection, lookAtDirection);
             upDirection.Normalize();
         }
 
+        //Changes the lookAtDirection to the desired primitive and then finds the new pitch and yaw which are then used to find the new up and right directions
         internal void LookAt(Primitive target)
         {
             if (target is Sphere)
@@ -118,11 +121,12 @@ namespace RayTracer
                 pitch = 89.0f;
             }
 
-            SetFrontDirection();
+            SetLookAtDirection();
             SetRightDirection();
             SetUpDirection();
         }
 
+        //Finds the new pitch and yaw values according to the lookAtDirection
         internal void CalculateNewPitchYaw()
         {
             pitch = (float)MathHelper.RadiansToDegrees(Math.Asin(lookAtDirection.Y));
@@ -131,6 +135,7 @@ namespace RayTracer
             yaw = (float)MathHelper.RadiansToDegrees(Math.Atan2(tempX, tempZ)) + 180f;
         }
 
+        //Finds the nearest point of a given plane to the camera, this method is used in combination with the lookAt function when a plane is given
         internal Vector3 FindNearestPoint(Plane plane)
         {
             Vector3 normalizedVector = plane.normal.Normalized();
@@ -146,15 +151,17 @@ namespace RayTracer
             return result;
         }
 
-        internal void SetFOV(float halfPlane, float angle)
+        //Sets the FOV of the camera to the desired angle
+        internal void SetFOV(float angle)
         {
-            distanceToScreenPlane = halfPlane / (float)Math.Tan(MathHelper.DegreesToRadians(angle));
-            fov = CalculateFOV(resolution, distanceToScreenPlane);
+            distanceToScreenPlane = resolution / (float)Math.Tan(MathHelper.DegreesToRadians(angle));
+            fov = CalculateFOV();
         }
 
-        internal float CalculateFOV(float halfPlane, float disPlane)
+        //Finds the FOV using the resolution and distance to plane
+        internal float CalculateFOV()
         {
-            return (float)MathHelper.RadiansToDegrees(Math.Atan(halfPlane / disPlane));
+            return (float)MathHelper.RadiansToDegrees(Math.Atan(resolution / distanceToScreenPlane));
         }
     }
 }

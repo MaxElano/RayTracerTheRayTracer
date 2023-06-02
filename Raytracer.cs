@@ -414,7 +414,12 @@ namespace RayTracer
                 double u = (phi + Math.PI) / (2 * Math.PI);
                 double v = theta / Math.PI;
 
-                materialColor = CheckboardPattern(u, v, 32);
+                if (sphere.pattern == "Stripes")
+                    materialColor = StripePattern(u, v, 2);
+                else if (sphere.pattern == "Checkers")
+                    materialColor = CheckboardPattern(u, v, 16);
+                else
+                    materialColor = ImagePattern(u, v, sphere.map);
             }
             else if (intersection.nearestPrimitive is TexturedTriangle)
             {
@@ -430,7 +435,12 @@ namespace RayTracer
                 double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
                 double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
 
-                materialColor = CheckboardPattern(uP, vP, 32);
+                if (triangle.pattern == "Stripes")
+                    materialColor = StripePattern(uP, vP, 2);
+                else if (triangle.pattern == "Checkers")
+                    materialColor = CheckboardPattern(uP, vP, 4);
+                else
+                    materialColor = ImagePattern(uP, vP, triangle.map);
             }
             else if (intersection.nearestPrimitive is TexturedPlane)
             {
@@ -443,10 +453,20 @@ namespace RayTracer
                 float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
                 float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
 
-                materialColor = CheckboardPattern(u, v, 4);
+                u = (float)Math.Sqrt((u % 1) * (u % 1));
+                v = (float)Math.Sqrt((v % 1) * (v % 1));
+
+                if (plane.pattern == "Stripes")
+                    materialColor = StripePattern(u, v, 2);
+                else if (plane.pattern == "Checkers")
+                    materialColor = CheckboardPattern(u, v, 4);
+                else
+                    materialColor = ImagePattern(u, v, plane.map);
             }
             return materialColor;
         }
+
+        
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
             float opacity = (int)(u*factor) + (int)(v*factor) & 1;
