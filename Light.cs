@@ -27,13 +27,14 @@ namespace RayTracer
         internal Spotlight(Vector3 position, Vector3 rgbIntensity, Vector3 shineAtDirection, float angle) : base(position, rgbIntensity)
         {
             this.shineAtDirection = shineAtDirection;
-            shineAtDirection.Normalize();
+            this.shineAtDirection.Normalize();
             this.angle = angle;
         }
 
+        //Checks if the incoming shadowray comes in from the allowed angle
         internal bool DoesItHit(Ray ray)
         {
-            double incomingAngle = MathHelper.RadiansToDegrees(Math.Acos(Vector3.Dot(-shineAtDirection, ray.direction)));
+            double incomingAngle = MathHelper.RadiansToDegrees(Math.Acos(Vector3.Dot(shineAtDirection, ray.direction)));
             if (incomingAngle <= angle)
                 return true;
             else

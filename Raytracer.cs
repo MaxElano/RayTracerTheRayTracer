@@ -50,8 +50,8 @@ namespace RayTracer
             camera = new Camera(new Vector3(0,0,0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
             this.screen = screen;
-            map = new Surface("../../../assets/grass.png");
-            background = new Surface("../../../assets/skybox.png");
+            map = new Surface("../../../assets/sus.png");
+            background = new Surface("../../../assets/wierd.png");
         }
         internal void Render()
         {
@@ -400,6 +400,10 @@ namespace RayTracer
                         {
                             if (!(light as Spotlight).DoesItHit(shadowRay))
                                 intensity = Vector3.Zero;
+                            else if (materialColor != Vector3.Zero)
+                            {
+
+                            }
                         }
 
                         distance = shadowRay.intersectionDistance;
@@ -413,7 +417,9 @@ namespace RayTracer
                             n = 20;
                             r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, intersection.normal) * intersection.normal;
                             r.Normalize();
-                            color += intensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(intersection.normal, shadowRay.direction)) + intersection.nearestPrimitive.speculalColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-ray.direction, r)), n));
+                            float dot = Vector3.Dot(-ray.direction, r);
+                            float power = (float)Math.Pow(Math.Max(0, dot), n);
+                            color += intensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(intersection.normal, shadowRay.direction)) + intersection.nearestPrimitive.speculalColor * power);
                         }
                     }
 
@@ -421,11 +427,14 @@ namespace RayTracer
 
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
+                
 
-                if (intersection.nearestPrimitive is Triangle)
-                {
-                    color = new Vector3(color.X * ((TriangleIntersection)intersection).alpha, color.Y * ((TriangleIntersection)intersection).beta, color.Z * ((TriangleIntersection)intersection).gamma);
-                }
+
+                //if (intersection.nearestPrimitive is Triangle)
+                //{
+                //    color = new Vector3(color.X * ((TriangleIntersection)intersection).alpha, color.Y * ((TriangleIntersection)intersection).beta, color.Z * ((TriangleIntersection)intersection).gamma);
+                //}
+                //
 
                 return color;
             }
@@ -437,7 +446,6 @@ namespace RayTracer
                     return Vector3.Zero;
             }
         }
-
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
             float opacity = (int)(u*factor) + (int)(v*factor) & 1;
@@ -697,8 +705,8 @@ namespace RayTracer
 
         internal Vector3 Background(Vector3 direction)
         {
-            double theta = 1;
-            double phi = 1;
+            double theta = 90;
+            double phi = 90;
             if (direction.Z != 0)
                 theta = MathHelper.RadiansToDegrees(Math.Atan(direction.X / direction.Z));
             if(direction.Z != 0)
