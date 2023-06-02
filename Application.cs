@@ -42,6 +42,15 @@ namespace RayTracer
                 camera.fov = camera.CalculateFOV();
                 camera.screen.Print(((int)camera.fov).ToString(), camera.screen.width / 25, camera.screen.height / 25, 0xffffff);
             }
+            else
+            {
+                KeyboardInputDebugger();
+            }
+        }
+
+        private void KeyboardInputDebugger()
+        {
+
         }
 
         //Checks the users keyboard inputs to control speed, movement, rotation, cycling through primitives and focusing on current targeted primitive
