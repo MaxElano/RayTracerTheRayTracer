@@ -1,9 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RayTracer
 {
@@ -21,7 +16,7 @@ namespace RayTracer
             this.intersectionDistance = intersectionDistance;
             this.numberOfBounces = numberOfBounces;
             this.opticalDensity = opticalDensity;
-            if(opticalDensity == 0)
+            if (opticalDensity == 0)
                 this.opticalDensity = Primitive.DetermineOpticalDensity(material);
 
         }
