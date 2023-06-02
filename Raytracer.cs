@@ -284,6 +284,7 @@ namespace RayTracer
                 ray.intersectionDistance = Math.Abs((intersection.position - ray.origin).Length);
                 //----Textures----
                 Vector3 materialColor = intersection.nearestPrimitive.materialColor;
+                //Defines the U and V values for the textured sphere and then checks which pattern is needed
                 if (intersection.nearestPrimitive is TexturedSphere)
                 {
                     var sphere = (TexturedSphere)intersection.nearestPrimitive;

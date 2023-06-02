@@ -28,36 +28,32 @@ namespace RayTracer
             targetCounter = 0;
             target = raytracer.scene.primitives[targetCounter];
         }
+
+        //Function that runs every tick, renders the raytracer, checks the keyboard and mouse input and prints the current FOV on the screen
         internal void Update()
         {
             raytracer.Render();
-
-            if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt])
-            {
-                camera.lookAtDirection = new Vector3(0, 0, 1);
-                camera.rightDirection = new Vector3(-1, 0, 0);
-                camera.upDirection = new Vector3(0, 1, 0);
-                camera.SetScreenPlaneCorners();
-                raytracer.debugMode = true;
-            }
 
             if (!raytracer.debugMode)
             {
                 KeyboardInput();
                 MouseInput();
 
-                camera.fov = camera.CalculateFOV(camera.resolution, camera.distanceToScreenPlane);
+                camera.fov = camera.CalculateFOV();
                 camera.screen.Print(((int)camera.fov).ToString(), camera.screen.width / 25, camera.screen.height / 25, 0xffffff);
             }
         }
 
+        //Checks the users keyboard inputs to control speed, movement, rotation, cycling through primitives and focusing on current targeted primitive
         private void KeyboardInput()
         {
             float moveSpeed = 0.1f;
 
+            //Speeds up the movement and rotation of camera when holding down leftShift
             if (keyboard[Keys.LeftShift]) moveSpeed = 0.3f;
             else moveSpeed = 0.1f;
 
+            //Controls the cameras position according to key input (WASDEQ)
             if (keyboard[Keys.W])
             {
                 camera.position += camera.lookAtDirection * moveSpeed;
@@ -83,6 +79,7 @@ namespace RayTracer
                 camera.position -= camera.upDirection * moveSpeed;
             }
 
+            //Controls the cameras rotation according to key input (Arrow Keys)
             if (keyboard[Keys.Up])
             {
                 camera.pitch += 25f * moveSpeed;
@@ -90,7 +87,7 @@ namespace RayTracer
                 {
                     camera.pitch = 89.0f;
                 }
-                camera.SetFrontDirection();
+                camera.SetLookAtDirection();
                 camera.SetUpDirection();
             }
             if (keyboard[Keys.Down])
@@ -100,24 +97,25 @@ namespace RayTracer
                 {
                     camera.pitch = -89.0f;
                 }
-                camera.SetFrontDirection();
+                camera.SetLookAtDirection();
                 camera.SetUpDirection();
             }
             if (keyboard[Keys.Left])
             {
                 camera.yaw -= 25f * moveSpeed;
-                camera.SetFrontDirection();
+                camera.SetLookAtDirection();
                 camera.SetRightDirection();
                 camera.SetUpDirection();
             }
             if (keyboard[Keys.Right])
             {
                 camera.yaw += 25f * moveSpeed;
-                camera.SetFrontDirection();
+                camera.SetLookAtDirection();
                 camera.SetRightDirection();
                 camera.SetUpDirection();
             }
 
+            //Cycles through the list of primitives in scene, key input P cycles to the right and key input O cycles to the left through the list of primitives. This also immediately looks at the given primitive
             if (keyboard[Keys.P] && !targetSwitched)
             {
                 targetSwitched = true;
@@ -141,23 +139,36 @@ namespace RayTracer
                 camera.LookAt(target);
             }
 
+            //When Space is held down it targets the current target primitive so long as it stays held down
             if (keyboard[Keys.Space])
             {
                 camera.LookAt(target);
             }
 
+            //Makes sure that you need to let go of P or O before being able to switch again
             if (!keyboard[Keys.P] && !keyboard[Keys.O] && targetSwitched)
                 targetSwitched = false;
+
+            //If both Alt keys are held down, the screen enters debug mode
+            if (keyboard[Keys.LeftAlt] && keyboard[Keys.RightAlt])
+            {
+                camera.lookAtDirection = new Vector3(0, 0, 1);
+                camera.rightDirection = new Vector3(-1, 0, 0);
+                camera.upDirection = new Vector3(0, 1, 0);
+                camera.SetScreenPlaneCorners();
+                raytracer.debugMode = true;
+            }
 
             camera.SetScreenPlaneCorners();
         }
 
+        //Checks the users mouse input for scrolling for FOV control
         private void MouseInput()
         {
             if (mouse.ScrollDelta.Y > 0 && camera.fov > 2)
-                camera.SetFOV(camera.resolution, camera.fov-=3);
+                camera.SetFOV(camera.fov-=3);
             if (mouse.ScrollDelta.Y < 0 && camera.fov < 88)
-                camera.SetFOV(camera.resolution, camera.fov+=3);
+                camera.SetFOV(camera.fov+=3);
 
             camera.SetScreenPlaneCorners();
         }
