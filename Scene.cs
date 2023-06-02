@@ -25,23 +25,29 @@ namespace RayTracer
             primitives.Add(new TexturedPlane(new Vector3(0,1,0), new Vector3(0, -3, 0), new Vector3(0.6f, 0.6f, 0.6f), new Vector3(0.8f, 0.8f, 0.8f)));
             
             primitives.Add(new Sphere(new Vector3(5, 1, 4), 0.5f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-
+            
             primitives.Add(new Sphere(new Vector3(-2, 0, 3), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 1));
-
+            
             Sphere mirror = new Sphere(new Vector3(2, 0, 6), 0.7f, new Vector3(1, 1, 1), new Vector3(0.5f, 0.5f, 0.5f), 0.5f);
             mirror.specularColor = new Vector3(0.1f, 0.1f, 0.1f);
             primitives.Add(mirror);
-
+            
             primitives.Add(new TexturedTriangle(new Vector3(-6, -2, 2), new Vector3(-6, -2, 7), new Vector3(-6, 5, 4), new Vector3(1, 1, 1), new Vector3(1, 1, 1)));
-
+            
             Sphere window = new Sphere(new Vector3(2.5f, -2, 3), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 0, Primitive.Materials.window_glass);
             window.specularColor = new Vector3(0.2f, 0.2f, 0.2f);
             primitives.Add(window);
-
+            
             primitives.Add(new TexturedSphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
-
+            
             lights.Add(new Light(new Vector3(4, 5, 0), new Vector3(10, 10, 10)));
-            lights.Add(new Spotlight(new Vector3(0, -2, 5), new Vector3(50, 50, 50), new Vector3(1, 0, 0), 15f));
+            lights.Add(new Spotlight(new Vector3(0, -2, 5), new Vector3(50, 50, 50), new Vector3(1, -0.2f, 0), 15f));
+
+            ////-------Test Scene-------
+            //primitives.Add(new TexturedPlane(new Vector3(0,0,-1), new Vector3(0, 0, 4), new Vector3(0.6f, 0.6f, 0.6f), new Vector3(0.8f, 0.8f, 0.8f)));
+            //
+            //lights.Add(new Spotlight(new Vector3(0, 2, 0), new Vector3(50, 50, 50), new Vector3(0, 0.5f, -1), 20f));
+
         }
     }
 }

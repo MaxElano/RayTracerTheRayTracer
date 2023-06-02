@@ -42,7 +42,7 @@ namespace RayTracer
 
         //-------Multi Threading------
         internal static object lockObject = new object();
-        internal bool debugMode, multiThreading = true;
+        internal bool debugMode, multiThreading = false;
 
         internal Raytracer(Surface screen)
         {
@@ -51,7 +51,7 @@ namespace RayTracer
             debugMode = false;
             this.screen = screen;
             map = new Surface("../../../assets/sus.png");
-            background = new Surface("../../../assets/skybox.png");
+            background = new Surface("../../../assets/wierd.png");
         }
         internal void Render()
         {
@@ -82,7 +82,7 @@ namespace RayTracer
                 }
 
                 for (int x = 0; x < screen.width; x++)
-                    if (x % 1 == 0 || x == 0)
+                    if (x % 10 == 0 || x == 0)
                     {
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         DebugTrace(primaryRay, scene, 0xfcba03);
@@ -397,7 +397,7 @@ namespace RayTracer
                         {
                             if (!(light as Spotlight).DoesItHit(shadowRay))
                                 intensity = Vector3.Zero;
-                            else
+                            else if (materialColor != Vector3.Zero)
                             {
 
                             }
@@ -414,7 +414,9 @@ namespace RayTracer
                             n = 20;
                             r = -shadowRay.direction - 2 * Vector3.Dot(-shadowRay.direction, intersection.normal) * intersection.normal;
                             r.Normalize();
-                            color += intensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(intersection.normal, shadowRay.direction)) + intersection.nearestPrimitive.speculalColor * (float)Math.Pow(Math.Max(0, Vector3.Dot(-ray.direction, r)), n));
+                            float dot = Vector3.Dot(-ray.direction, r);
+                            float power = (float)Math.Pow(Math.Max(0, dot), n);
+                            color += intensity * (1 / (distance * distance)) * (materialColor * Math.Max(0, Vector3.Dot(intersection.normal, shadowRay.direction)) + intersection.nearestPrimitive.speculalColor * power);
                         }
                     }
 
@@ -441,7 +443,6 @@ namespace RayTracer
                     return Vector3.Zero;
             }
         }
-
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
             int opacity = (int)(u*factor) + (int)(v*factor) & 1;
