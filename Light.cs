@@ -33,7 +33,7 @@ namespace RayTracer
 
         internal bool DoesItHit(Ray ray)
         {
-            double incomingAngle = MathHelper.RadiansToDegrees(Math.Acos(Vector3.Dot(-shineAtDirection, ray.direction)));
+            double incomingAngle = MathHelper.RadiansToDegrees(Math.Acos(Vector3.Dot(shineAtDirection, ray.direction)));
             if (incomingAngle <= angle)
                 return true;
             else
