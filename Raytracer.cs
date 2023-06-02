@@ -21,7 +21,7 @@ namespace RayTracer
     {
         internal Scene scene;
         internal Camera camera;
-        Surface screen, map, background;
+        Surface screen, background;
 
         int tempint = 0;
         Ray primaryRay;
@@ -50,7 +50,6 @@ namespace RayTracer
             camera = new Camera(new Vector3(0,0,0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
             this.screen = screen;
-            map = new Surface("../../../assets/sus.png");
             background = new Surface("../../../assets/wierd.png");
         }
         internal void Render()
@@ -294,7 +293,12 @@ namespace RayTracer
                     double u = (phi + Math.PI) / (2 * Math.PI);
                     double v = theta / Math.PI;
 
-                    materialColor = CheckboardPattern(u, v, 16);
+                    if (sphere.pattern == "Stripes")
+                        materialColor = StripePattern(u, v, 2);
+                    else if (sphere.pattern == "Checkers")
+                        materialColor = CheckboardPattern(u, v, 16);
+                    else
+                        materialColor = ImagePattern(u, v, sphere.map);
                 }
                 else if (intersection.nearestPrimitive is TexturedTriangle)
                 {
@@ -310,7 +314,12 @@ namespace RayTracer
                     double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
                     double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
 
-                    materialColor = Sus(uP, vP);
+                    if (triangle.pattern == "Stripes")
+                        materialColor = StripePattern(uP, vP, 2);
+                    else if (triangle.pattern == "Checkers")
+                        materialColor = CheckboardPattern(uP, vP, 4);
+                    else
+                        materialColor = ImagePattern(uP, vP, triangle.map);
                 }
                 else if (intersection.nearestPrimitive is TexturedPlane)
                 {
@@ -326,7 +335,12 @@ namespace RayTracer
                     u = (float)Math.Sqrt((u % 1) * (u % 1));
                     v = (float)Math.Sqrt((v % 1) * (v % 1));
 
-                    materialColor = Sus(u, v);
+                    if (plane.pattern == "Stripes")
+                        materialColor = StripePattern(u, v, 2);
+                    else if (plane.pattern == "Checkers")
+                        materialColor = CheckboardPattern(u, v, 4);
+                    else
+                        materialColor = ImagePattern(u, v, plane.map);
                 }
 
                 Vector3 materialsAmbientColor = materialColor;
@@ -462,7 +476,7 @@ namespace RayTracer
             return opacity * finalColor;
         }
 
-        internal Vector3 Sus(double u, double v)
+        internal Vector3 ImagePattern(double u, double v, Surface map)
         {
             u = Math.Clamp((int)(map.width - (u * map.width)), 0, map.width -1);
             v = Math.Clamp((int)(map.height - (v * map.height)), 0, map.height - 1);

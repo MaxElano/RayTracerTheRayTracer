@@ -50,6 +50,7 @@ namespace RayTracer
             SetScreenPlaneCorners();
         }
 
+        //Sets the screen plane corners to their new positions according to the new directions of the camera
         internal void SetScreenPlaneCorners()
         {
             screenPlaneCenter = position + distanceToScreenPlane * lookAtDirection;
@@ -59,6 +60,7 @@ namespace RayTracer
             rightBottom = screenPlaneCenter - upDirection + resolution * rightDirection;
         }
 
+        //Sets the 
         internal void SetFrontDirection()
         {
             lookAtDirection = new Vector3(
@@ -106,6 +108,15 @@ namespace RayTracer
             }
             lookAtDirection.Normalize();
             CalculateNewPitchYaw();
+
+            if (pitch < -89.0f)
+            {
+                pitch = -89.0f;
+            }
+            else if (pitch > 89.0f)
+            {
+                pitch = 89.0f;
+            }
 
             SetFrontDirection();
             SetRightDirection();

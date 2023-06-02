@@ -15,6 +15,7 @@ namespace RayTracer
         Primitive target;
         static internal float epsilon = 0.0001f;
         private int targetCounter;
+        private bool targetSwitched;
 
         internal Application(Surface screen, KeyboardState keyboard, MouseState mouse)
         {
@@ -25,6 +26,7 @@ namespace RayTracer
             camera.yaw = 180f;
             camera.pitch = 0f;
             targetCounter = 0;
+            target = raytracer.scene.primitives[targetCounter];
         }
         internal void Update()
         {
@@ -116,8 +118,9 @@ namespace RayTracer
                 camera.SetUpDirection();
             }
 
-            if (keyboard[Keys.P])
+            if (keyboard[Keys.P] && !targetSwitched)
             {
+                targetSwitched = true;
                 if (targetCounter < raytracer.scene.primitives.Count - 1)
                     targetCounter++;
                 else
@@ -126,8 +129,9 @@ namespace RayTracer
                 target = raytracer.scene.primitives[targetCounter]; 
                 camera.LookAt(target);
             }
-            else if (keyboard[Keys.O])
+            else if (keyboard[Keys.O] && !targetSwitched)
             {
+                targetSwitched = true;
                 if (targetCounter > 0)
                     targetCounter--;
                 else
@@ -141,6 +145,9 @@ namespace RayTracer
             {
                 camera.LookAt(target);
             }
+
+            if (!keyboard[Keys.P] && !keyboard[Keys.O] && targetSwitched)
+                targetSwitched = false;
 
             camera.SetScreenPlaneCorners();
         }
