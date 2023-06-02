@@ -50,7 +50,7 @@ namespace RayTracer
             camera = new Camera(new Vector3(0,0,0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
             this.screen = screen;
-            map = new Surface("../../../assets/sus.png");
+            map = new Surface("../../../assets/grass.png");
             background = new Surface("../../../assets/skybox.png");
         }
         internal void Render()
@@ -82,7 +82,7 @@ namespace RayTracer
                 }
 
                 for (int x = 0; x < screen.width; x++)
-                    if (x % 1 == 0 || x == 0)
+                    if (x % 10 == 0 || x == 0)
                     {
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         DebugTrace(primaryRay, scene, 0xfcba03);
@@ -294,7 +294,7 @@ namespace RayTracer
                     double u = (phi + Math.PI) / (2 * Math.PI);
                     double v = theta / Math.PI;
 
-                    materialColor = CheckboardPattern(u, v, 32);
+                    materialColor = CheckboardPattern(u, v, 16);
                 }
                 else if (intersection.nearestPrimitive is TexturedTriangle)
                 {
@@ -310,7 +310,7 @@ namespace RayTracer
                     double uP = ((TriangleIntersection)intersection).alpha * uA + ((TriangleIntersection)intersection).beta * uB + ((TriangleIntersection)intersection).gamma * uC;
                     double vP = ((TriangleIntersection)intersection).alpha * vA + ((TriangleIntersection)intersection).beta * vB + ((TriangleIntersection)intersection).gamma * vC;
 
-                    materialColor = CheckboardPattern(uP, vP, 32);
+                    materialColor = Sus(uP, vP);
                 }
                 else if (intersection.nearestPrimitive is TexturedPlane)
                 {
@@ -323,7 +323,10 @@ namespace RayTracer
                     float u = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorU);
                     float v = Vector3.Dot(intersection.position - plane.distanceToOrigin, vectorV);
 
-                    materialColor = CheckboardPattern(u, v, 4);
+                    u = (float)Math.Sqrt((u % 1) * (u % 1));
+                    v = (float)Math.Sqrt((v % 1) * (v % 1));
+
+                    materialColor = Sus(u, v);
                 }
 
                 Vector3 materialsAmbientColor = materialColor;
@@ -418,14 +421,11 @@ namespace RayTracer
 
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
-                
-
 
                 if (intersection.nearestPrimitive is Triangle)
                 {
                     color = new Vector3(color.X * ((TriangleIntersection)intersection).alpha, color.Y * ((TriangleIntersection)intersection).beta, color.Z * ((TriangleIntersection)intersection).gamma);
                 }
-
 
                 return color;
             }
@@ -440,7 +440,15 @@ namespace RayTracer
 
         internal Vector3 CheckboardPattern(double u, double v, int factor)
         {
-            int opacity = (int)(u*factor) + (int)(v*factor) & 1;
+            float opacity = (int)(u*factor) + (int)(v*factor) & 1;
+            Vector3 finalColor = new Vector3(1f, 1f, 1f);
+
+            return opacity * finalColor;
+        }
+
+        internal Vector3 StripePattern(double u, double v, float factor)
+        {
+            float opacity = (float)(Math.Sin(MathHelper.RadiansToDegrees(u*factor)) + 1) / 2;
             Vector3 finalColor = new Vector3(1f, 1f, 1f);
 
             return opacity * finalColor;
@@ -448,12 +456,18 @@ namespace RayTracer
 
         internal Vector3 Sus(double u, double v)
         {
-            u = (int)(u * map.width);
-            v = (int)(v * map.height);
-            
-            float opacity = ((float)(map.pixels[(int)u + (int)v * 255] & 255)) / 256;
+            u = Math.Clamp((int)(map.width - (u * map.width)), 0, map.width -1);
+            v = Math.Clamp((int)(map.height - (v * map.height)), 0, map.height - 1);
 
-            return new Vector3(1f, 1f, 1f) * opacity;
+            int intColor = (map.pixels[(int)u + (int)v * map.width]);
+
+            Color color = Color.FromArgb(intColor); //https://stackoverflow.com/a/6131464
+
+            float red = color.R / 255f;
+            float green = color.G / 255f;
+            float blue = color.B / 255f;
+
+            return new Vector3(red, green, blue);
         }
 
         internal Intersection PrimaryRayIntersection(Ray ray, Scene scene)
