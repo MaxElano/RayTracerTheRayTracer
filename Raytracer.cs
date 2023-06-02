@@ -600,7 +600,7 @@ namespace RayTracer
         {
             Intersection tempIntersection = collideRayPlane(ray, new Plane(primitive.normal, primitive.pointA, primitive.materialColor, primitive.speculalColor, primitive.specularity));
 
-            if (tempIntersection.distance != 0) //Hits the plane of the triangle
+            if (tempIntersection.distance > 0) //Hits the plane of the triangle
             {
                 float alpha = Vector3.Dot(Vector3.Cross((primitive.pointC - primitive.pointB), (tempIntersection.position - primitive.pointB)), primitive.normal) / Vector3.Dot(Vector3.Cross((primitive.pointB - primitive.pointA), (primitive.pointC - primitive.pointA)), primitive.normal);
                 float beta = Vector3.Dot(Vector3.Cross((primitive.pointA - primitive.pointC), (tempIntersection.position - primitive.pointC)), primitive.normal) / Vector3.Dot(Vector3.Cross((primitive.pointB - primitive.pointA), (primitive.pointC - primitive.pointA)), primitive.normal);
