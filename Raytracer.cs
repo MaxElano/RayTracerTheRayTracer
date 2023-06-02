@@ -507,24 +507,6 @@ namespace RayTracer
             else
                 return null;
         }
-        internal Intersection CheckCollision(Ray ray, Primitive primitive)
-        {
-            Intersection tempIntersection = null;
-            if (primitive is Plane)
-            {
-                tempIntersection = collideRayPlane(ray, primitive as Plane);
-            }
-            else if (primitive is Sphere)
-            {
-                tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere);
-                if (!(tempIntersection.distance > Application.epsilon && tempIntersection.distance < ray.intersectionDistance - Application.epsilon))
-                    tempIntersection = collideRaySphere(ray, scene.primitives[i] as Sphere, true);
-            }
-            else if (primitive is Triangle)
-            {
-                tempIntersection = collideRayTriangle(ray, scene.primitives[i] as Triangle);
-            }
-        }
 
         internal Intersection ShadowRayIntersection(Ray ray, Scene scene)
         {
