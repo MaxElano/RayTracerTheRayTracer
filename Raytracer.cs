@@ -42,13 +42,14 @@ namespace RayTracer
 
         //-------Multi Threading------
         internal static object lockObject = new object();
-        internal bool debugMode, multiThreading = true;
+        internal bool debugMode, multiThreading;
 
         internal Raytracer(Surface screen)
         {
             scene = new Scene();
             camera = new Camera(new Vector3(0,0,0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 1f, screen);
             debugMode = false;
+            multiThreading = true;
             this.screen = screen;
             background = new Surface("../../../assets/wierd.png");
         }
