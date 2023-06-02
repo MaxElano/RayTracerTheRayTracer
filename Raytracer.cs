@@ -46,7 +46,7 @@ namespace RayTracer
             debugMode = false;
             multiThreading = true;
             antiAliasing = true;
-            aaDiff = 1 / aaNumber;
+            aaDiff = 1f / aaNumber;
             background = new Surface("../../../assets/wierd.png");
         }
         internal void Render()
