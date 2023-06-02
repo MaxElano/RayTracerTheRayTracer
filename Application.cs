@@ -1,6 +1,7 @@
 ﻿
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 
 namespace RayTracer
 {
@@ -16,9 +17,17 @@ namespace RayTracer
         static internal float epsilon = 0.0001f;
         private int targetCounter;
         private bool targetSwitched;
+        Stopwatch pressTimer = new Stopwatch();
+        bool showHelp = true;
+        Surface screen;
+        int textInterval = 18;
+        int pressInterval = 600;
+        int distanceCounter = 1;
 
         internal Application(Surface screen, KeyboardState keyboard, MouseState mouse)
         {
+            this.screen = screen;
+            pressTimer.Start();
             raytracer = new Raytracer(screen);
             this.keyboard = keyboard;
             this.mouse = mouse;
@@ -34,13 +43,24 @@ namespace RayTracer
         {
             raytracer.Render();
 
+            pressTimer.Stop();
+            if (keyboard[Keys.H] && pressTimer.ElapsedMilliseconds > pressInterval)
+            {
+                showHelp = !showHelp;
+                pressTimer.Reset();
+            }
+            pressTimer.Start();
+            if (showHelp)
+                ShowHelp();
+
+
             if (!raytracer.debugMode)
             {
                 KeyboardInput();
                 MouseInput();
 
                 camera.fov = camera.CalculateFOV();
-                camera.screen.Print(((int)camera.fov).ToString(), camera.screen.width / 25, camera.screen.height / 25, 0xffffff);
+                camera.screen.Print("FOV: " + ((int)camera.fov).ToString(), screen.width - 100, 28, 0xffffff);
             }
             else
             {
@@ -48,12 +68,79 @@ namespace RayTracer
             }
         }
 
+        //Shows the controls on the side of the screen
+        private void ShowHelp()
+        {
+            distanceCounter = 1;
+            if (raytracer.debugMode)
+            {
+                screen.Print("Turn On/Off", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("H : Help Menu", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("P : Primary Rays", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("S : Shadow Rays", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("R : Refraction Rays", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("L : Reflaction Rays", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("I : Primitives", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Exit Debug: Lalt", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+            }
+            else
+            {
+                screen.Print("Movement Controls", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Move: W/A/S/D", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Up: E", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Down: Q", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Look Around: Up/Left/Down/Right", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Next Primitive: P", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Previous Primitive: O", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Look At: Space", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
+                screen.Print("Enter Debug: Lalt", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+            }
+        }
+
         private void KeyboardInputDebugger()
         {
-            if (keyboard[Keys.P])
+            pressTimer.Stop();
+            if (keyboard[Keys.P] && pressTimer.ElapsedMilliseconds > pressInterval)
             {
                 raytracer.showPrimaryRays = !raytracer.showPrimaryRays;
+                pressTimer.Reset();
             }
+            if (keyboard[Keys.S] && pressTimer.ElapsedMilliseconds > pressInterval)
+            {
+                raytracer.showShadowRays = !raytracer.showShadowRays;
+                pressTimer.Reset();
+            }
+            if (keyboard[Keys.R] && pressTimer.ElapsedMilliseconds > pressInterval)
+            {
+                raytracer.showRefractionRays = !raytracer.showRefractionRays;
+                pressTimer.Reset();
+            }
+            if (keyboard[Keys.L] && pressTimer.ElapsedMilliseconds > pressInterval)
+            {
+                raytracer.showReflectionRays = !raytracer.showReflectionRays;
+                pressTimer.Reset();
+            }
+            if (keyboard[Keys.I] && pressTimer.ElapsedMilliseconds > pressInterval)
+            {
+                raytracer.showPrimitives = !raytracer.showPrimitives;
+                pressTimer.Reset();
+            }
+            pressTimer.Start();
         }
 
         //Checks the users keyboard inputs to control speed, movement, rotation, cycling through primitives and focusing on current targeted primitive

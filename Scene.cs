@@ -40,8 +40,8 @@ namespace RayTracer
             
             primitives.Add(new TexturedSphere(new Vector3(0, 2.5f, 4), 1f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f), 0, Primitive.Materials.vacuum, "Image", "bricks"));
             
-            lights.Add(new Light(new Vector3(4, 5, 0), new Vector3(10, 10, 10)));
-            lights.Add(new Spotlight(new Vector3(0, -2, 5), new Vector3(50, 50, 50), new Vector3(1, -0.2f, 0), 15f));
+            lights.Add(new Light(new Vector3(4, 5, 0), new Vector3(50, 50, 50)));
+            lights.Add(new Spotlight(new Vector3(0, -2, 5), new Vector3(20, 20, 20), new Vector3(1, -0.2f, 0), 15f));
 
             ////-------Test Scene-------
             //primitives.Add(new TexturedPlane(new Vector3(0,0,-1), new Vector3(0, 0, 4), new Vector3(0.6f, 0.6f, 0.6f), new Vector3(0.8f, 0.8f, 0.8f)));

@@ -29,7 +29,7 @@ namespace RayTracer
             application.Update();
             timer.Stop();
             if(timer.ElapsedMilliseconds != 0)
-                screen.Print("FPS: " + 1000 / timer.ElapsedMilliseconds, 10, 50, 255 * 256 * 256 + 255 * 256 + 255);
+                screen.Print("FPS: " + 1000 / timer.ElapsedMilliseconds, screen.width - 100, 10, 255 * 256 * 256 + 255 * 256 + 255);
             timer.Restart();
             //screen.Clear(0);
             //screen.Print("hello world", 2, 2, 0xffffff);

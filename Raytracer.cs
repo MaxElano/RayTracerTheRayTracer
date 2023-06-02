@@ -178,7 +178,7 @@ namespace RayTracer
                         draw = true;
                     break;
                 default:
-                    draw = true;
+                    draw = false;
                     break;
             }
 
@@ -249,16 +249,19 @@ namespace RayTracer
                         {
                             if (light is Spotlight && !(light as Spotlight).DoesItHit(shadowRay))
                             {
-                                screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xc4b07b);
+                                if(showShadowRays)
+                                    screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xc4b07b);
                             }
                             else
                             {
-                                screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
+                                if (showShadowRays)
+                                    screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(light.position.X), TY(-light.position.Z), 0xff1100);
                             }
                         }
                         else
                         {
-                            screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xc4b07b);
+                            if (showShadowRays)
+                                screen.Line(TX(intersection.position.X), TY(-intersection.position.Z), TX(shadowIntersection.position.X), TY(-shadowIntersection.position.Z), 0xc4b07b);
                         }
 
                     }
@@ -355,10 +358,6 @@ namespace RayTracer
                         {
                             if (!(light as Spotlight).DoesItHit(shadowRay))
                                 intensity = Vector3.Zero;
-                            else if (materialColor != Vector3.Zero)
-                            {
-
-                            }
                         }
 
                         distance = shadowRay.intersectionDistance;
