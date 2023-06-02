@@ -97,6 +97,8 @@ namespace RayTracer
                 distanceCounter++;
                 screen.Print("Move: W/A/S/D", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
                 distanceCounter++;
+                screen.Print("Speed Up: Shift", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
+                distanceCounter++;
                 screen.Print("Up: E", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);
                 distanceCounter++;
                 screen.Print("Down: Q", 10, distanceCounter * textInterval, 255 * 256 * 256 + 255 * 256 + 255);

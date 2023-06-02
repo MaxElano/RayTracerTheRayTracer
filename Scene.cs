@@ -26,11 +26,11 @@ namespace RayTracer
             
             primitives.Add(new TexturedSphere(new Vector3(5, 1, 4), 0.5f, new Vector3(1, 0, 0), new Vector3(0.8f, 0.8f, 0.8f)));
             
-            primitives.Add(new Sphere(new Vector3(-2, 0, 3), 1f, new Vector3(1, 1, 1), new Vector3(0.8f, 0.8f, 0.8f), 1));
+            primitives.Add(new Sphere(new Vector3(-2, 0, 3), 1f, new Vector3(1, 1, 1), new Vector3(1f, 1f, 1f), 1));
             
-            Sphere mirror = new Sphere(new Vector3(2, 0, 6), 0.7f, new Vector3(1, 1, 1), new Vector3(0.5f, 0.5f, 0.5f), 0.5f);
-            mirror.specularColor = new Vector3(0.1f, 0.1f, 0.1f);
-            primitives.Add(mirror);
+            Sphere halfmirror = new Sphere(new Vector3(2, 0, 6), 0.7f, new Vector3(1, 1, 1), new Vector3(0.5f, 0.5f, 0.5f), 0.5f);
+            halfmirror.specularColor = new Vector3(0.1f, 0.1f, 0.1f);
+            primitives.Add(halfmirror);
             
             primitives.Add(new TexturedTriangle(new Vector3(-6, -2, 2), new Vector3(-6, -2, 7), new Vector3(-6, 5, 4), new Vector3(1, 1, 1), new Vector3(1, 1, 1), 0, Primitive.Materials.vacuum, "Stripes"));
             
