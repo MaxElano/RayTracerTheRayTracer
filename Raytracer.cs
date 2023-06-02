@@ -377,14 +377,6 @@ namespace RayTracer
                     color += materialsAmbientColor * ambientLightRadiance;
                 }
 
-
-
-                //if (intersection.nearestPrimitive is Triangle)
-                //{
-                //    color = new Vector3(color.X * ((TriangleIntersection)intersection).alpha, color.Y * ((TriangleIntersection)intersection).beta, color.Z * ((TriangleIntersection)intersection).gamma);
-                //}
-                //
-
                 return color;
             }
             else
