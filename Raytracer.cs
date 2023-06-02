@@ -82,7 +82,7 @@ namespace RayTracer
                 }
 
                 for (int x = 0; x < screen.width; x++)
-                    if (x % 80 == 0 || x == 0)
+                    if (x % 1 == 0 || x == 0)
                     {
                         primaryRay = FindPrimaryRay(x, screen.height / 2, screen.width, screen.height);
                         DebugTrace(primaryRay, scene, 0xfcba03);
