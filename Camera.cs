@@ -154,6 +154,8 @@ namespace RayTracer
         //Sets the FOV of the camera to the desired angle
         internal void SetFOV(float angle)
         {
+            if (angle > 89)
+                angle = 89;
             distanceToScreenPlane = resolution / (float)Math.Tan(MathHelper.DegreesToRadians(angle));
             fov = CalculateFOV();
         }
