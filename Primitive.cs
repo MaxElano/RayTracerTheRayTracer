@@ -72,7 +72,7 @@ namespace RayTracer
         internal Plane(Vector3 normal, Vector3 distanceToOrigin, Vector3 materialColor, Vector3 speculalColor, float specularity = 0, Materials material = Materials.vacuum) : base(materialColor, speculalColor, specularity, material)
         {
             this.normal = normal;
-            normal.Normalize();
+            this.normal.Normalize();
             this.distanceToOrigin = distanceToOrigin;
         }
     }
